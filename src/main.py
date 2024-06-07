@@ -50,7 +50,7 @@ def main():
     importBioSampleInstance = ImportBioSample(biosampleFile=biosampleFile)
     biosample, biosampleDf = importBioSampleInstance.importBioSample()
 
-    importVirusInstance = ImportVirusBat()
+    importVirusInstance = ImportVirus()
     viruses = importVirusInstance.importVirusData()
 
     qualityCheckInstance = QualityControl(biosample=biosample)

@@ -46,11 +46,9 @@ class CreateContigs:
     # Output: a continuation of the original path (can yeild more than one possible path)
     def followSubPath(self, startNode, originalPath):
         stack = deque([(startNode, originalPath + [startNode])])
-
         # continuation of modified DFS, creating a new path everytime a split occurs (2 or more outgoing edges from a single node)
         while stack:
             currentNode, path = stack.pop()
-
             if self.checkIfLastNode(currentNode=currentNode):
                 yield path  # pause followSubPath execution, redirect control to followPath for consumption of yielded path
                 continue

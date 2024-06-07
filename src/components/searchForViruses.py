@@ -55,17 +55,17 @@ class SearchForViruses:
                 )
             contigInfo["kmerCount"] = kmerCount
             contigsInfo.append(contigInfo)
-            # print(f"Contig {id+1} out of {len(self.contigs)} done.")
+            print(f"Contig {id+1} out of {len(self.contigs)} done.")
         return contigsInfo
 
     def align(self, virusSequence):
         virusKmerPool = self.virusesToKmers(virusSequence)
-        ccStart = time.time()
+
         contigsInfo = self.createContigsInfo(virusKmerPool)
-        ccEnd = time.time()
+
         possibleBestContigs = []
         mostVKmers = 0
-        longestContigMostVKmers = ""
+
         numGoodContigs = 0
         # find the contig with the most virus-kmers (count only)
         for contig in contigsInfo:
