@@ -132,7 +132,7 @@ class CreateContigs:
         for index, node in enumerate(startNodes):
             for id, path in enumerate(self.followPath(node)):
                 self.allPaths.append(path)
-            logging.info(f"There were {id+1} paths for node: {index+1}")
+            # logging.info(f"There were {id+1} paths for node: {index+1}")
 
         # for each of the paths visited, concatentate all nodes by taking the last base from the end of each node and appending it to the ongoing list of characters (initialized with the first full node)
         for path in self.allPaths:

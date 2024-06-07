@@ -27,36 +27,41 @@ class SearchForViruses:
                     kmerPool[kmer].append({index: index + self.k})
         return kmerPool
 
+    def hammingDistance(self, virus, contig):
+        distance = 0
+        for index in range(len(virus)):
+            if contig[index] != virus[index]:
+                distance += 1
+        return distance
+
     def createContigsInfo(self, virusKmerPool):
         # build contigsInfo to store: contig sequence, length of contig, virus kmers that exist in the contig (with location of kmer in contig)
         contigsInfo = []
+
         virusKmerPoolSet = set(virusKmerPool)
         for id, contig in enumerate(self.contigs):
             contigLen = len(contig)
+
             kmerCount = 0
             contigInfo = {"contig": contig, "length": contigLen, "v-kmers": []}
             contigSet = set(
                 contig[i : i + self.k] for i in range(len(contig) - self.k + 1)
             )  # Create set of kmers in contig
-
-            # print(contigSet)
             commonKmers = virusKmerPoolSet & contigSet  # Find common kmers
-            for kmer in commonKmers:
-                kmerCount += 1
-                contigInfo["v-kmers"].append(
-                    {
-                        kmer: {
-                            "index": [
-                                contig.index(kmer),
-                                contig.index(kmer) + self.k,
-                            ]
-                        }
-                    }
-                )
-            contigInfo["kmerCount"] = kmerCount
-            contigsInfo.append(contigInfo)
-            print(f"Contig {id+1} out of {len(self.contigs)} done.")
-        return contigsInfo
+            if len(commonKmers) > 0:
+                print(f"There are matched kmers in virus for contig: {id}")
+                logging.info(f"\tThere are matched kmers in virus for contig: {id}")
+            else:
+                contigSpecificDistance = []
+                localDistance = []
+                for vkmer in virusKmerPool:
+                    subLocalDistance = []
+                    for ckmer in contigSet:
+                        subLocalDistance.append(self.hammingDistance(vkmer, ckmer))
+                    sldt = sum(subLocalDistance)
+                    localDistance.append(sldt)
+                contigSpecificDistance = sum(localDistance)
+                print(f"Contig: {id} | Distance: {contigSpecificDistance}")
 
     def align(self, virusSequence):
         virusKmerPool = self.virusesToKmers(virusSequence)
@@ -87,6 +92,7 @@ class SearchForViruses:
         logging.info("Search for Viruses: ")
         viruses = self.viruses
         for virus, virusData in viruses.items():
+            print(f"Current Virus: {virus}")
             virusSequence = virusData["sequence"]
             start = time.time()
             numGoodContigs = self.align(virusSequence)
