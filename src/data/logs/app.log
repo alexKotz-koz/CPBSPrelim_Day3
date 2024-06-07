@@ -1,0 +1,12 @@
+Import Viruses: 
+	There are 31 viruses in this dataset
+Quality Control: 
+	# of reads: 250
+	Average read length: 293.656
+	Minimum read length: 218
+	Maximum read length: 300
+Time Stamp: Reads to Kmers finished in 0.02729511260986328
+Time Stamp: DeBruijn Graph finished in 0.0
+Create Contigs: 
+	Number of start nodes: 119
+	Number of end nodes: 153
