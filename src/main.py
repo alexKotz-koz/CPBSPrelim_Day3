@@ -16,7 +16,7 @@ from components.readsToKmers import ReadsToKmers
 from components.deBruijnGraph import DeBruijnGraph
 from components.createContigs import CreateContigs
 
-from components.findViruses import FindViruses
+from components.findVirusesInReads import FindViruses
 from components.searchForViruses import SearchForViruses
 
 
@@ -65,7 +65,7 @@ def main():
     bacteriaRemovalInstance = BacteriaRemoval()
     bacteriaRemovalInstance.removeBacteria()
 
-    rtkStart = time.time()
+    """rtkStart = time.time()
     readsToKmersInstance = ReadsToKmers(readsData=cleanedBiosample, k=k)
     kmerPool, _ = readsToKmersInstance.extractKmers()
     rtkStop = time.time()
@@ -84,23 +84,23 @@ def main():
     contigs, allPaths = createContigsInstance.createContigs()
     ccStop = time.time()
     logging.info(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")
-    print(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")
+    print(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")"""
 
-    """fvStart = time.time()
-    findVirusesInstance = FindViruses(contigs=contigs, viruses=viruses)
+    fvStart = time.time()
+    findVirusesInstance = FindViruses(reads=cleanedBiosample, viruses=viruses)
     findVirusesInstance.findViruses()
     fvStop = time.time()
     logging.info(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")
-    print(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")"""
+    print(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")
 
-    sfvStart = time.time()
+    """sfvStart = time.time()
     searchForVirusesInstance = SearchForViruses(
         viruses=viruses, readsKmerPool=kmerPool, contigs=contigs, k=k
     )
     searchForVirusesInstance.search()
     sfvStop = time.time()
     logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
-    print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
+    print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")"""
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import json
 import pandas as pd
 import logging
 import time
+from utils.utils import ToKmers
 
 
 class SearchForViruses:
@@ -59,7 +60,7 @@ class SearchForViruses:
         return contigsInfo
 
     def align(self, virusSequence):
-        virusKmerPool = self.virusesToKmers(virusSequence)
+        virusKmerPool = ToKmers(virusSequence)
 
         contigsInfo = self.createContigsInfo(virusKmerPool)
 
