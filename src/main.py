@@ -5,6 +5,8 @@ import argparse
 import time
 import os
 import sys
+import cProfile
+import pstats
 
 from components.importBioSample import ImportBioSample
 from components.importVirus import ImportVirus
@@ -17,7 +19,10 @@ from components.deBruijnGraph import DeBruijnGraph
 from components.createContigs import CreateContigs
 
 from components.findVirusesInReads import FindViruses
-from components.searchForViruses import SearchForViruses
+from components.searchForViruses_SW import SearchForViruses
+from components.searchForViruses_SS import SearchString
+
+# from components.searchForViruses_old import SearchForViruses
 
 
 logDir = "data/logs"
@@ -32,7 +37,7 @@ logging.basicConfig(
 
 
 def main():
-
+    logging.info("Main: ")
     # arg setup and management
     parser = argparse.ArgumentParser(
         description="Metagenomic-based virome characterizer"
@@ -46,7 +51,8 @@ def main():
 
     biosampleFile = args.biosample
     k = args.k
-
+    logging.info(f"\tBioSample File: {biosampleFile}")
+    logging.info(f"\tSize of K = {k}")
     importBioSampleInstance = ImportBioSample(biosampleFile=biosampleFile)
     biosample, biosampleDf = importBioSampleInstance.importBioSample()
 
@@ -65,7 +71,7 @@ def main():
     bacteriaRemovalInstance = BacteriaRemoval()
     bacteriaRemovalInstance.removeBacteria()
 
-    """rtkStart = time.time()
+    rtkStart = time.time()
     readsToKmersInstance = ReadsToKmers(readsData=cleanedBiosample, k=k)
     kmerPool, _ = readsToKmersInstance.extractKmers()
     rtkStop = time.time()
@@ -74,30 +80,48 @@ def main():
 
     dbgStart = time.time()
     debruijnGraphInstance = DeBruijnGraph(kmerPool=kmerPool, k=k)
-    nodes, edges = debruijnGraphInstance.constructGraph()
+    nodes, edges, orphanedNodes, orphanedSubgraphs = (
+        debruijnGraphInstance.constructGraph()
+    )
+    print(f"Orphaned Nodes: {orphanedNodes}, Orphaned Subgraphs: {orphanedSubgraphs}")
     dbgStop = time.time()
-    logging.info(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStop}")
-    print(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStop}")
+    logging.info(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStart}")
+    print(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStart}")
 
     ccStart = time.time()
     createContigsInstance = CreateContigs(graph=edges)
-    contigs, allPaths = createContigsInstance.createContigs()
+    # contigs, allPaths = cProfile.run(createContigsInstance.createContigs(), "output.dat")
+    contigs = createContigsInstance.createContigs()
     ccStop = time.time()
     logging.info(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")
-    print(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")"""
+    print(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")
 
-    fvStart = time.time()
+    """p = pstats.Stats("output.dat")
+    p.sort_stats("cumulative").print_stats(
+        10
+    )  # Print the 10 most time-consuming functions"""
+
+    """fvStart = time.time()
     findVirusesInstance = FindViruses(reads=cleanedBiosample, viruses=viruses)
     findVirusesInstance.findViruses()
     fvStop = time.time()
     logging.info(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")
-    print(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")
+    print(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")"""
+
+    sfvStart = time.time()
+    searchForVirusesInstance = SearchForViruses(viruses=viruses, contigs=contigs, k=k)
+    searchForVirusesInstance.search()
+    sfvStop = time.time()
+    logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
+    print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
 
     """sfvStart = time.time()
-    searchForVirusesInstance = SearchForViruses(
-        viruses=viruses, readsKmerPool=kmerPool, contigs=contigs, k=k
-    )
-    searchForVirusesInstance.search()
+    for id, virus in viruses.items():
+        searchStringInstance = SearchString(
+            virus=virus, readsKmerPool=kmerPool, contigs=contigs, k=k
+        )
+        searchStringInstance.searchString()
+        break
     sfvStop = time.time()
     logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
     print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")"""

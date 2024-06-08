@@ -78,7 +78,7 @@ class QualityControl:
         biosampleDf = pd.DataFrame(biosampleList)
 
         logging.info("Quality Control: ")
-        logging.info(f"\t# of reads: {len(cleanedBiosample)}")
+        logging.info(f"\t# of cleaned reads: {len(cleanedBiosample)}")
         logging.info(f"\tAverage read length: {avgSeqLength}")
         logging.info(f"\tMinimum read length: {min(sequenceLengths)}")
         logging.info(f"\tMaximum read length: {max(sequenceLengths)}")

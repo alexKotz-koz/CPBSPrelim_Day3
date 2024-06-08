@@ -9,7 +9,9 @@ class ImportVirus:
         virusFile3 = "sequences_20240607_9774926.fasta"
         virusFile4 = "sequences_20240607_5959983.fasta"
         NCLDVFile = "sequences_ Nucleocytoviricota.fasta"
+        self.NCLDVFile = NCLDVFile
         dataDir = "./data/virus_data"
+        self.dataDir = dataDir
         self.virusDataFileLocations = [
             os.path.join(dataDir, virusFile),
             os.path.join(dataDir, virusFile2),
@@ -20,10 +22,11 @@ class ImportVirus:
         self.virusData = []
 
     def importVirusData(self):
-        for fileLocation in self.virusDataFileLocations:
-            with open(fileLocation, "r") as virusDataFile:
-                self.virusData.extend(virusDataFile.readlines())
-
+        """for fileLocation in self.virusDataFileLocations:
+        with open(fileLocation, "r") as virusDataFile:
+            self.virusData.extend(virusDataFile.readlines())"""
+        with open(os.path.join(self.dataDir, self.NCLDVFile), "r") as file:
+            self.virusData.extend(file.readlines())
         sequence = []
         virusDataDict = {}
         virusNames = []
@@ -55,8 +58,9 @@ class ImportVirus:
                 "name": organismName,
                 "sequence": sequence,
             }
-        print(len(virusNames))
-
+        virusDataDict = dict(
+            sorted(virusDataDict.items(), key=lambda item: len(item[1]["sequence"]))
+        )
         logging.info(f"Import Viruses: ")
         logging.info(f"\tThere are {len(virusDataDict)} viruses in this dataset")
         return virusDataDict

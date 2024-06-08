@@ -99,12 +99,11 @@ class FindViruses:
         reads = self.reads
         matchLenContigVirus = {}
         logging.info("Find Viruses in Reads: ")
-
         for key, virus in viruses.items():
             vName = virus["name"]
             vSeq = virus["sequence"]
             sameLen = 0
-            for index, read in self.reads.iterrows():
+            for index, read in reads.iterrows():
                 id = read["id"]
                 rSeq = read["sequence"]
                 if len(rSeq) == len(vSeq):
@@ -112,7 +111,7 @@ class FindViruses:
                     distance = self.hammingDistance(vSeq, rSeq)
                     coverage = (len(rSeq) - distance) / len(rSeq)
 
-                    if vName not in matchLenContigVirus:
+                    if key not in matchLenContigVirus:
                         matchLenContigVirus[vName] = [
                             {
                                 "read": index,
