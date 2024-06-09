@@ -40,10 +40,9 @@ logging.basicConfig(
 
 def main():
     logging.info("Main: ")
-    currDir = os.getcwd()
-    rootDir = os.path.dirname(currDir)
-    srcDir = os.path.join(rootDir, "src")
-    dataDir = os.path.join(srcDir, "data")
+    scriptDir = os.path.dirname(__file__)
+    dataDir = "data"
+    dataDir = os.path.join(scriptDir, "data")
     # arg setup and management
     parser = argparse.ArgumentParser(
         description="Metagenomic-based virome characterizer"
@@ -63,20 +62,10 @@ def main():
     viruses = {}
 
     if biosampleFile == "synthetic":
-        if os.path.exists(srcDir):
+        if os.path.exists(dataDir):
             pass
         else:
-            rootDir = os.path.join(rootDir, "CPBSPrelim_Day3")
-            if os.path.exists(rootDir):
-                pass
-            else:
-                raise Exception(f"rootdir: {rootDir} {os.getcwd()}")
-            srcDir = os.path.join(srcDir, rootDir)
-            dataDir = os.path.join(srcDir, dataDir)
-            if os.path.exists(os.path.join(dataDir, "synthetic_data")):
-                pass
-            else:
-                raise Exception(f"Syntheticdir still DNE: {dataDir}")
+            raise Exception(f"Syntheticdir still DNE: {dataDir}")
         syntheticDataDir = os.path.join(dataDir, "synthetic_data")
         syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
         syntheticVirusFile = os.path.join(syntheticDataDir, "virus.fasta")

@@ -1,8 +1,8 @@
 Main: 
 	BioSample File: synthetic
 	Size of K = 5
-Time Stamp: Reads to Kmers finished in 0.0002079010009765625
-Time Stamp: DeBruijn Graph finished in 1.0967254638671875e-05
+Time Stamp: Reads to Kmers finished in 0.0002810955047607422
+Time Stamp: DeBruijn Graph finished in 1.2159347534179688e-05
 Create Contigs: 
 	Number of start nodes: 2
 	Number of end nodes: 3
@@ -10,4 +10,4 @@ Create Contigs:
 	Total number of contigs: [5]
 	Minimum contig length: 11
 	Maximum contig length: 13
-Time Stamp: Create Contigs finished in 0.0003790855407714844
+Time Stamp: Create Contigs finished in 0.0003731250762939453
