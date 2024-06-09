@@ -113,8 +113,10 @@ def main():
         importVirusInstance = ImportVirus()
         viruses = importVirusInstance.importVirusData(fileLocations=NCLDVFileLocation)
 
-        qualityCheckInstance = QualityControl(biosample=biosample)
-        cleanedBiosample, minimumReadLength = qualityCheckInstance.qualityControl()
+        qualityControlInstance = QualityControl(biosample=biosample)
+        cleanedBiosample, minimumReadLength, qualityControlReport = (
+            qualityControlInstance.qualityControl()
+        )
         if k > (minimumReadLength - 2):
             print(
                 f"\nK must be at least one less than the size of the smallest read.\nMinimum read length for this sample is: {minimumReadLength}"

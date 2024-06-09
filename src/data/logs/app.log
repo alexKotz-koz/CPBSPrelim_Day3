@@ -1,18 +1,25 @@
 Main: 
-	BioSample File: synthetic
-	Size of K = 5
-Time Stamp: Reads to Kmers finished in 0.00042700767517089844
-Time Stamp: DeBruijn Graph finished in 2.5987625122070312e-05
+	BioSample File: biofilm_subset50.fastq
+	Size of K = 35
+Import Viruses: 
+	There are 157 viruses in this dataset
+Quality Control: 
+	# of cleaned reads: 50
+	Average read length: 288.28
+	Minimum read length: 238
+	Maximum read length: 302
+Time Stamp: Reads to Kmers finished in 0.023552894592285156
+Time Stamp: DeBruijn Graph finished in 0.003452301025390625
 Create Contigs: 
-	Number of start nodes: 2
-	Number of end nodes: 3
-	Average contig length: 12.0
-	Total number of contigs: [5]
-	Minimum contig length: 11
-	Maximum contig length: 13
-Time Stamp: Create Contigs finished in 0.0010907649993896484
+	Number of start nodes: 50
+	Number of end nodes: 49
+	Average contig length: 291.490022172949
+	Total number of contigs: [902]
+	Minimum contig length: 213
+	Maximum contig length: 360
+Time Stamp: Create Contigs finished in 0.18863606452941895
 Search For Viruses:
 
-	Virus: >Virus1 aligns with 2 contigs
-	Virus: >Virus2 aligns with 5 contigs
-	Virus: >Virus3 aligns with 3 contigs
+	0 contigs aligns with Linepithema humile entomopoxvirus 1 
+	0 contigs aligns with Heterosigma akashiwo virus 01 
+	0 contigs aligns with Squirrel fibroma virus 

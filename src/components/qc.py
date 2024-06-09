@@ -81,4 +81,4 @@ class QualityControl:
         logging.info(f"\tMinimum read length: {min(sequenceLengths)}")
         logging.info(f"\tMaximum read length: {max(sequenceLengths)}")
 
-        return biosampleDf, min(sequenceLengths)
+        return biosampleDf, min(sequenceLengths), qualityControlReport

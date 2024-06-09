@@ -1,4 +1,7 @@
 import os
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class ViromeReport:
@@ -15,9 +18,16 @@ class ViromeReport:
             vName = virus["virus"]
             numContigs = virus["numContigsInVirus"]
             vProportion = numContigs / totalNumContigs
-            virusAbundance[vName] = {"abundance": vProportion}
+            virusAbundance[vName] = {"abundance": vProportion * 100}
         return virusAbundance
 
     def generateReport(self):
         virusAbundance = self.virusAbundance()
         print(virusAbundance)
+        # Convert the dictionary to a pandas DataFrame
+        df = pd.DataFrame(virusAbundance).T.reset_index()
+        df.columns = ["Virus", "Abundance"]
+
+        # Create the bar plot
+        sns.barplot(x="Virus", y="Abundance", data=df)
+        plt.show()
