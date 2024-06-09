@@ -10,7 +10,7 @@ class CreateContigs:
         self.graph = graph
         self.edgesCount = defaultdict(lambda: [0, 0])  # [incoming, outgoing]
         self.allPaths = []
-        scriptDir = os.path.dirname(__file__)
+        scriptDir = os.path.dirname(os.path.dirname(__file__))
         dataDir = "data"
         dataDir = os.path.join(scriptDir, "data")
         self.logsDataDir = os.path.join(dataDir, "logs")
