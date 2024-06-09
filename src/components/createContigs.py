@@ -10,8 +10,11 @@ class CreateContigs:
         self.graph = graph
         self.edgesCount = defaultdict(lambda: [0, 0])  # [incoming, outgoing]
         self.allPaths = []
-        self.logsDataDir = "./data/logs"
-        self.outputDataDir = "./data/output_data"
+        scriptDir = os.path.dirname(__file__)
+        dataDir = "data"
+        dataDir = os.path.join(scriptDir, "data")
+        self.logsDataDir = os.path.join(dataDir, "logs")
+        self.outputDataDir = os.path.join(dataDir, "output_data")
 
     # Input: edge list from readsToKmers
     # Output: a list of all start nodes (nodes that only have outgoing edges)
