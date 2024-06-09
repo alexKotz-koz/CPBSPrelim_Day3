@@ -40,6 +40,7 @@ logging.basicConfig(
 currDir = os.getcwd()
 rootDir = os.path.dirname(currDir)
 srcDir = os.path.join(rootDir, "src")
+dataDir = os.path.join(srcDir, "data")
 
 
 def main():
@@ -64,7 +65,15 @@ def main():
 
     if biosampleFile == "synthetic":
 
-        syntheticDataDir = os.path.join(srcDir, "data/synthetic_data")
+        syntheticDataDir = os.path.join(dataDir, "synthetic_data")
+        if os.path.exists(srcDir):
+            pass
+        else:
+            raise Exception(f"src dir: {srcDir} DNE")
+        if os.path.exists(dataDir):
+            pass
+        else:
+            raise Exception(f"dataDir: {dataDir} DNE")
         if os.path.exists(syntheticDataDir):
             pass
         else:
