@@ -37,6 +37,10 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+currDir = os.getcwd()
+rootDir = os.path.dirname(currDir)
+srcDir = os.path.join(rootDir, "src")
+
 
 def main():
     logging.info("Main: ")
@@ -57,25 +61,13 @@ def main():
     logging.info(f"\tSize of K = {k}")
     # Simulated Data
     viruses = {}
-    currDir = os.getcwd()
-    print(currDir)
+
     if biosampleFile == "synthetic":
-        # path management for actions
-        if os.path.exists(os.path.join(currDir, "data/synthetic_data")):
-            syntheticDataDir = "data/synthetic_data"
 
-        elif os.path.exists(
-            os.path.join(os.path.dirname(currDir), "data/synthetic_data")
-        ):
-            syntheticDataDir = os.path.join("..", "data/synthetic_data")
-        else:
-            raise Exception("Data directory not found")
-
-        syntheticDataDir = os.path.join(currDir, syntheticDataDir)
-        print(f"syntheticDataDir: {syntheticDataDir}")
+        syntheticDataDir = os.path.join(srcDir, "data/synthetic_data")
         syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
-        print(f"biosample location: {syntheticBiosampleFile}")
         syntheticVirusFile = os.path.join(syntheticDataDir, "virus.fasta")
+
         biosample_dict = {}
         with open(syntheticBiosampleFile, "r") as file:
             data = file.readlines()
