@@ -58,8 +58,11 @@ def main():
     logging.info(f"\tSize of K = {k}")
     # Simulated Data
     viruses = {}
+    currDir = os.getcwd()
     if biosampleFile == "synthetic":
         syntheticDataDir = "data/synthetic_data"
+        syntheticDataDir = os.path.join(currDir, syntheticDataDir)
+        print(syntheticDataDir)
         syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
         syntheticVirusFile = os.path.join(syntheticDataDir, "virus.fasta")
         biosample_dict = {}
