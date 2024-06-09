@@ -63,11 +63,14 @@ def main():
     viruses = {}
 
     if biosampleFile == "synthetic":
-
         if os.path.exists(srcDir):
             pass
         else:
             rootDir = os.path.join(rootDir, "CPBSPrelim_Day3")
+            if os.path.exists(rootDir):
+                pass
+            else:
+                raise Exception(f"rootdir: {rootDir} {os.getcwd()}")
             srcDir = os.path.join(srcDir, rootDir)
             dataDir = os.path.join(srcDir, dataDir)
             if os.path.exists(os.path.join(dataDir, "synthetic_data")):
