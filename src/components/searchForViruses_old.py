@@ -90,3 +90,4 @@ class SearchString:
             )
         with open("data/output_data/virusesInBiosample.json", "w") as file:
             json.dump(virusesInBiosample, file)
+        return virusesInBiosample

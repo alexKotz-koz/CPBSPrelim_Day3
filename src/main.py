@@ -20,12 +20,11 @@ from components.deBruijnGraph import DeBruijnGraph
 from components.createContigs import CreateContigs
 
 # from components.searchForViruses_SW import SearchForViruses
+# from components.searchForViruses_SW_PP import SearchForViruses
 from components.searchForViruses_hamming import SearchForVirusesHamming
 from components.searchForViruses_old import SearchString
 
-# from components.searchForViruses_SW_PP import SearchForViruses
-
-# from components.searchForViruses_old import SearchForViruses
+from components.viromeReport import ViromeReport
 
 
 logDir = "data/logs"
@@ -59,8 +58,19 @@ def main():
     # Simulated Data
     viruses = {}
     currDir = os.getcwd()
+    print(currDir)
     if biosampleFile == "synthetic":
-        syntheticDataDir = "data/synthetic_data"
+        # path management for actions
+        if os.path.exists(os.path.join(currDir, "data/synthetic_data")):
+            syntheticDataDir = "data/synthetic_data"
+
+        elif os.path.exists(
+            os.path.join(os.path.dirname(currDir), "data/synthetic_data")
+        ):
+            syntheticDataDir = os.path.join("..", "data/synthetic_data")
+        else:
+            raise Exception("Data directory not found")
+
         syntheticDataDir = os.path.join(currDir, syntheticDataDir)
         print(f"syntheticDataDir: {syntheticDataDir}")
         syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
@@ -146,7 +156,7 @@ def main():
     )  # Print the 10 most time-consuming functions"""
 
     searchForVirusesInstance = SearchString(viruses, kmerPool, contigs, k)
-    searchForVirusesInstance.searchString()
+    virusesInBiosample = searchForVirusesInstance.searchString()
 
     """sfvStart = time.time()
     searchForVirusesInstance = SearchForViruses(
@@ -165,6 +175,9 @@ def main():
     sfvStop = time.time()
     logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
     print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")"""
+
+    viromeReportInstance = ViromeReport(contigs, virusesInBiosample)
+    viromeReportInstance.generateReport()
 
 
 if __name__ == "__main__":
