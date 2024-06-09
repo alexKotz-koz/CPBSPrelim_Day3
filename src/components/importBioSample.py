@@ -4,20 +4,30 @@ import os
 
 class ImportBioSample:
     def __init__(self, biosampleFile):
+        self.biosampleFile = biosampleFile
+        self.biosample = {}
+
+    def importBioSample(self):
         dataDir = "./data/biosample_data"
+        biosample = self.biosample
+        biosampleFile = self.biosampleFile
+        biosampleDataDir = ""
+
         if "biofilm" in biosampleFile:
             biosampleDataDir = os.path.join(dataDir, "biofilm")
         elif "cryoconite" in biosampleFile:
             biosampleDataDir = os.path.join(dataDir, "cryoconite")
         elif "bat" in biosampleFile:
             biosampleDataDir = os.path.join(dataDir, "bat")
-        self.biosampleFileLocation = os.path.join(biosampleDataDir, biosampleFile)
+        elif "test" in biosampleFile:
+            biosampleDataDir = ""
 
-        self.biosample = {}
+        if biosampleDataDir == "":
+            biosampleFileLocation = "test_data/testbiosample.fastq"
+        else:
+            biosampleFileLocation = os.path.join(biosampleDataDir, biosampleFile)
 
-    def importBioSample(self):
-        biosample = self.biosample
-        with open(self.biosampleFileLocation, "r") as biosampleFile:
+        with open(biosampleFileLocation, "r") as biosampleFile:
             while True:
                 idline = biosampleFile.readline().split(" ")
                 if not idline[0]:

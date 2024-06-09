@@ -3,7 +3,6 @@ import sys
 import json
 import pandas as pd
 import numpy as np
-import logging
 import time
 
 from concurrent.futures import ProcessPoolExecutor
@@ -14,27 +13,11 @@ class SearchForViruses:
         self.viruses = viruses
         self.contigs = contigs
         self.k = k
-        self.logDataDir = "./data/logs"
         self.outputDataDir = "./data/output_data"
 
     def smith_waterman(
         self, contig, virus, match_score=3, mismatch_score=-1, gap_penalty=-2
     ):
-        """
-        Perform Smith-Waterman alignment on two sequences.
-
-        Args:
-        - contig (str): First sequence to align.
-        - virus (str): Second sequence to align.
-        - match_score (int): Score for a match.
-        - mismatch_score (int): Score for a mismatch.
-        - gap_penalty (int): Penalty for opening a gap.
-
-        Returns:
-        - alignment_score (int): Score of the best alignment.
-        - aligned_contig (str): First sequence with gaps for alignment.
-        - aligned_virus (str): Second sequence with gaps for alignment.
-        """
         # Initialize scoring matrix
         rows = len(contig) + 1
         cols = len(virus) + 1
@@ -85,7 +68,7 @@ class SearchForViruses:
 
     def calculateCoverage(self, alignments, virusLength):
         """
-        The calculateCoverage function is used to calculate this coverage. It takes as input the alignments and the length of the virus sequence. It creates a boolean array of the same length as the virus sequence, where each position in the array corresponds to a position in the virus sequence. If a position in the virus sequence is covered by an alignment, the corresponding position in the array is set to True. The coverage is then calculated as the sum of the True values in the array (i.e., the number of positions covered by alignments) divided by the length of the virus sequence, multiplied by 100 to get a percentage.
+        If a position in the virus sequence is covered by an alignment, the corresponding position in the array is set to True. The coverage is then calculated as the sum of the True values in the array (i.e., the number of positions covered by alignments) divided by the length of the virus sequence, multiplied by 100 to get a percentage.
         """
         coverageArray = np.zeros(virusLength, dtype=bool)
         for alignment in alignments:
@@ -113,7 +96,6 @@ class SearchForViruses:
         return virusData["name"], result
 
     def search(self):
-        logging.info("Search for Viruses: ")
         virusContigObj = {}
         viruses = self.viruses
         vIndex = 0
@@ -158,10 +140,10 @@ class SearchForViruses:
                     else:
                         virusContigObj[virusName].append(result)
             vStop = time.time()
-            logging.info(f"\tVirus {virusData['name']} completed in {vStop-vStart}")
+            print(f"\tVirus {virusData['name']} completed in {vStop-vStart}")
             coverage = self.calculateCoverage(alignments, len(virusSequence))
             virusContigObj[virusData["name"]].append({"coverage": coverage})
-            logging.info(f"\tVirus coverage: {coverage}")
+            print(f"\tVirus coverage: {coverage}")
 
         # print(virusContigObj)
         virusContigObjFile = os.path.join(self.outputDataDir, "VirusContigObject.json")

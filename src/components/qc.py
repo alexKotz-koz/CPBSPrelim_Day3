@@ -35,11 +35,9 @@ class QualityControl:
 
             qscores = [self.asciiToPhred(q) for q in quality]
 
-            # simulate "bases were trimmed from the end of reads if the quality score was < 20" -https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3728647/#SD2 (Supplemental Information section 5.2)
             trimmedScores = []
             trimmedSequence = []
 
-            ### Fill in this section with the logic: Take the second half of the qscores list, check to see if the q value for each q in the second half of the qscores list is less than 20, if it is less than 20, remove the base that corresponds to that index from the sequence list
             half_index = len(qscores) // 2
             for index in range(half_index, len(qscores)):
                 if qscores[index] >= 20:

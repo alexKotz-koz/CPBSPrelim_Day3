@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import logging
 import time
-from utils.utils import ToKmers
 
 
 class SearchForViruses:
@@ -137,6 +136,7 @@ class SearchForViruses:
                 print(
                     f"Contig {index}/{len(self.contigs)} on virus {vIndex}/{len(self.viruses)}"
                 )
+                print(f"Virus length: {len(virus)}\n")
             vStop = time.time()
             logging.info(f"\tVirus {virusData['name']} completed in {vStop-vStart}")
             coverage = self.calculateCoverage(alignments, len(virusSequence))

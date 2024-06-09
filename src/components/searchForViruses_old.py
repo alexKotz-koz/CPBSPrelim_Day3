@@ -1,24 +1,25 @@
-import os
 import sys
+import os
+import logging
+
+# required os set up for testing
+currentDir = os.path.dirname(os.path.abspath(__file__))
+parentDir = os.path.dirname(currentDir)
+sys.path.insert(0, parentDir)
+
 import json
 import pandas as pd
-import logging
-import time
-from utils.utils import ToKmers
 
 
-class SearchForViruses:
+class SearchString:
     def __init__(self, viruses, readsKmerPool, contigs, k):
         self.viruses = viruses
-        self.readsKmerPool = readsKmerPool
         self.contigs = contigs
+        self.readsKmerPool = readsKmerPool
         self.k = k
 
-    def virusesToKmers(self, virusSequence):
+    def virusToKmers(self, sequence):
         kmerPool = {}
-        for key, virus in self.viruses.items():
-            sequence = virus["sequence"]
-
         for index, base in enumerate(sequence):
             kmer = sequence[index : index + self.k]
             if len(kmer) >= self.k:
@@ -28,22 +29,30 @@ class SearchForViruses:
                     kmerPool[kmer].append({index: index + self.k})
         return kmerPool
 
-    def createContigsInfo(self, virusKmerPool):
-        # build contigsInfo to store: contig sequence, length of contig, virus kmers that exist in the contig (with location of kmer in contig)
+    def kmerPoolsToFile(self, virusKmerPool):
+
+        with open("data/logs/r-kmerPool.json", "w") as file:
+            json.dump(self.readsKmerPool, file)
+
+        # write reads and query kmerpool to files for analysis
+        with open("data/logs/v-kmerPool.json", "w") as file:
+            json.dump(virusKmerPool, file)
+
+    def createContigsInfo(self, virus, virusKmerPool):
+        # build contigsInfo to store: contig sequence, length of contig, query string kmers that exist in the contig (with location of kmer in contig)
         contigsInfo = []
-        virusKmerPoolSet = set(virusKmerPool)
         for id, contig in enumerate(self.contigs):
             contigLen = len(contig)
             kmerCount = 0
-            contigInfo = {"contig": contig, "length": contigLen, "v-kmers": []}
-            contigSet = set(
-                contig[i : i + self.k] for i in range(len(contig) - self.k + 1)
-            )  # Create set of kmers in contig
-
-            # print(contigSet)
-            commonKmers = virusKmerPoolSet & contigSet  # Find common kmers
-            if len(commonKmers) > 0:
-                for kmer in commonKmers:
+            contigInfo = {
+                "virus": virus,
+                "contigId": id + 1,
+                "contig": contig,
+                "length": contigLen,
+                "v-kmers": [],
+            }
+            for index, kmer in enumerate(virusKmerPool):
+                if kmer in contig and kmer not in contigInfo["v-kmers"]:
                     kmerCount += 1
                     contigInfo["v-kmers"].append(
                         {
@@ -55,45 +64,25 @@ class SearchForViruses:
                             }
                         }
                     )
-
             contigInfo["kmerCount"] = kmerCount
             contigsInfo.append(contigInfo)
-            print(f"Contig {id+1} out of {len(self.contigs)} done.")
         return contigsInfo
 
-    def align(self, virusSequence):
-        virusKmerPool = ToKmers(virusSequence)
-
-        contigsInfo = self.createContigsInfo(virusKmerPool)
-
-        possibleBestContigs = []
-        mostVKmers = 0
-
-        numGoodContigs = 0
-        # find the contig with the most virus-kmers (count only)
-        for contig in contigsInfo:
-            if contig["kmerCount"] > mostVKmers:
-                mostVKmers = contig["kmerCount"]
-        print(f"mostVkmers: {mostVKmers}")
-
-        # add all of the contigs that have mostVKmers count
-        for contig in contigsInfo:
-            if contig["kmerCount"] == mostVKmers:
-                possibleBestContigs.append(contig)
-            if contig["kmerCount"] == mostVKmers and mostVKmers >= 1:
-                numGoodContigs += 1
-        # print(f"possible contigs: {possibleBestContigs}")
-
-        return numGoodContigs
-
-    def search(self):
-        logging.info("Search for Viruses: ")
-        viruses = self.viruses
-        for virus, virusData in viruses.items():
-            virusSequence = virusData["sequence"]
-            start = time.time()
-            numGoodContigs = self.align(virusSequence)
-            end = time.time()
-            logging.info(
-                f"\tThere were {numGoodContigs} that had viral sequence data for virus: {virus}.\n\tIt took {end-start} seconds to digest this virus"
+    def searchString(self):
+        virusesInBiosample = []
+        for ssr, virus in self.viruses.items():
+            contigsExistInVirus = []
+            virusKmerPool = self.virusToKmers(virus["sequence"])
+            # build contigsInfo (see method for description)
+            contigsInfo = self.createContigsInfo(virus["name"], virusKmerPool)
+            for contig in contigsInfo:
+                if contig["kmerCount"] > 0:
+                    contigsExistInVirus.append(contig)
+            virusesInBiosample.append(
+                {"virus": virus["name"], "contigsInVirus": contigsExistInVirus}
             )
+            logging.info(
+                f"There are {len(contigsExistInVirus)} contigs that align with virus: {virus['name']} of length {len(virus['sequence'])}"
+            )
+        with open("data/output_data/virusesInBiosample.json", "w") as file:
+            json.dump(virusesInBiosample, file)

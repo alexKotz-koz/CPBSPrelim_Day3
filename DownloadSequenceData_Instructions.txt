@@ -1,0 +1,17 @@
+Download Biosamples:
+1. Install sratoolkit via homebrew: brew install sratoolkit
+2. Fetch the two biosamples (smallest WGS sequences from the bioproject):
+    - 'prefetch SRR'
+    - 'fastq-dump <sra file>'
+    - Note: These files, by default, will download into a directory named 'ncbi' at the root of your file system. 
+- SRR24581285: cryoconite 
+    - https://www.ncbi.nlm.nih.gov/sra/SRX20364643[accn]
+- SRR24581281: biofilm
+    - https://www.ncbi.nlm.nih.gov/sra/SRX20364649
+(Info): The bioproject can be found at 
+
+Download Viral Data:
+1. Download 2000 random viruses from: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide
+    - 6000 random viruses were downloaded for the development and testing of this project
+    b. Download the Nucleocytoviricota refseq genomes from: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Genome&VirusLineage_ss=Nucleocytoviricota,%20taxid:2732007
+        - These are the viruses that were found in the red snow alge from: https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-024-01796-y

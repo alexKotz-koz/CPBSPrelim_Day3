@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import logging
+import logging.handlers
+import queue
 import argparse
 import time
 import os
@@ -12,17 +14,16 @@ from components.importBioSample import ImportBioSample
 from components.importVirus import ImportVirus
 from components.impotVirusBat import ImportVirusBat
 from components.qc import QualityControl
-from components.bacteriaRemoval import BacteriaRemoval
 
 from components.readsToKmers import ReadsToKmers
 from components.deBruijnGraph import DeBruijnGraph
 from components.createContigs import CreateContigs
 
-from components.findVirusesInReads import FindViruses
-
 # from components.searchForViruses_SW import SearchForViruses
-from components.searchForViruses_SW_PP import SearchForViruses
-from components.searchForViruses_SS import SearchString
+from components.searchForViruses_hamming import SearchForVirusesHamming
+from components.searchForViruses_old import SearchString
+
+# from components.searchForViruses_SW_PP import SearchForViruses
 
 # from components.searchForViruses_old import SearchForViruses
 
@@ -55,41 +56,81 @@ def main():
     k = args.k
     logging.info(f"\tBioSample File: {biosampleFile}")
     logging.info(f"\tSize of K = {k}")
-    importBioSampleInstance = ImportBioSample(biosampleFile=biosampleFile)
-    biosample, biosampleDf = importBioSampleInstance.importBioSample()
+    # Simulated Data
+    viruses = {}
+    if biosampleFile == "synthetic":
+        syntheticDataDir = "data/synthetic_data"
+        syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
+        syntheticVirusFile = os.path.join(syntheticDataDir, "virus.fasta")
+        biosample_dict = {}
+        with open(syntheticBiosampleFile, "r") as file:
+            data = file.readlines()
 
-    importVirusInstance = ImportVirus()
-    viruses = importVirusInstance.importVirusData()
+        for index, line in enumerate(data):
+            if line[0] == "@":
+                id = line.strip()
+                if index + 1 < len(data):
+                    read = data[index + 1].strip()
+                    biosample_dict[id] = read
 
-    qualityCheckInstance = QualityControl(biosample=biosample)
-    cleanedBiosample, minimumReadLength = qualityCheckInstance.qualityControl()
-
-    if k > (minimumReadLength - 2):
-        print(
-            f"\nK must be at least one less than the size of the smallest read.\nMinimum read length for this sample is: {minimumReadLength}"
+        cleanedBiosample = pd.DataFrame(
+            list(biosample_dict.items()), columns=["id", "sequence"]
         )
-        sys.exit(1)
+        with open(syntheticVirusFile, "r") as file:
+            vdata = file.readlines()
+        # print(cleanedBiosample)
+        for index, item in enumerate(vdata):
+            if item[0] == ">":
+                id = item.strip()
+                seq = vdata[index + 1].strip()
 
-    bacteriaRemovalInstance = BacteriaRemoval()
-    bacteriaRemovalInstance.removeBacteria()
+            viruses[id] = {"name": id, "sequence": seq}
+        print(viruses)
+    else:
+        virusDataDir = "./data/virus_data"
+        virusFile = "sequences_20240607_3345067.fasta"
+        virusFile2 = "sequences_20240607_570283.fasta"
+        virusFile3 = "sequences_20240607_9774926.fasta"
+        virusFile4 = "sequences_20240607_5959983.fasta"
+        NCLDVFile = "sequences_ Nucleocytoviricota.fasta"
+        NCLDVFileLocation = [os.path.join(virusDataDir, NCLDVFile)]
+        virusDataFileLocations = [
+            os.path.join(virusDataDir, virusFile),
+            os.path.join(virusDataDir, virusFile2),
+            os.path.join(virusDataDir, virusFile3),
+            os.path.join(virusDataDir, virusFile4),
+            os.path.join(virusDataDir, NCLDVFile),
+        ]
+
+        importBioSampleInstance = ImportBioSample(biosampleFile=biosampleFile)
+        biosample, biosampleDf = importBioSampleInstance.importBioSample()
+
+        importVirusInstance = ImportVirus()
+        viruses = importVirusInstance.importVirusData(fileLocations=NCLDVFileLocation)
+
+        qualityCheckInstance = QualityControl(biosample=biosample)
+        cleanedBiosample, minimumReadLength = qualityCheckInstance.qualityControl()
+        if k > (minimumReadLength - 2):
+            print(
+                f"\nK must be at least one less than the size of the smallest read.\nMinimum read length for this sample is: {minimumReadLength}"
+            )
+            sys.exit(1)
 
     rtkStart = time.time()
     readsToKmersInstance = ReadsToKmers(readsData=cleanedBiosample, k=k)
     kmerPool, _ = readsToKmersInstance.extractKmers()
+    print(kmerPool)
     rtkStop = time.time()
     logging.info(f"Time Stamp: Reads to Kmers finished in {rtkStop-rtkStart}")
     print(f"Time Stamp: Reads to Kmers finished in {rtkStop-rtkStart}")
 
     dbgStart = time.time()
     debruijnGraphInstance = DeBruijnGraph(kmerPool=kmerPool, k=k)
-    nodes, edges, orphanedNodes, orphanedSubgraphs = (
-        debruijnGraphInstance.constructGraph()
-    )
-    print(f"Orphaned Nodes: {orphanedNodes}, Orphaned Subgraphs: {orphanedSubgraphs}")
+    nodes, edges = debruijnGraphInstance.constructGraph()
     dbgStop = time.time()
     logging.info(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStart}")
     print(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStart}")
-
+    # print(f"edges: {edges}")
     ccStart = time.time()
     createContigsInstance = CreateContigs(graph=edges)
     # contigs, allPaths = cProfile.run(createContigsInstance.createContigs(), "output.dat")
@@ -103,27 +144,23 @@ def main():
         10
     )  # Print the 10 most time-consuming functions"""
 
-    """fvStart = time.time()
-    findVirusesInstance = FindViruses(reads=cleanedBiosample, viruses=viruses)
-    findVirusesInstance.findViruses()
-    fvStop = time.time()
-    logging.info(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")
-    print(f"Time Stamp: Find Viruses finished in {fvStop-fvStart}")"""
+    searchForVirusesInstance = SearchString(viruses, kmerPool, contigs, k)
+    searchForVirusesInstance.searchString()
 
-    sfvStart = time.time()
-    searchForVirusesInstance = SearchForViruses(viruses=viruses, contigs=contigs, k=k)
+    """sfvStart = time.time()
+    searchForVirusesInstance = SearchForViruses(
+        viruses=viruses, contigs=cleanedBiosample, k=k
+    )
     searchForVirusesInstance.search()
     sfvStop = time.time()
     logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
-    print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
+    print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")"""
 
     """sfvStart = time.time()
-    for id, virus in viruses.items():
-        searchStringInstance = SearchString(
-            virus=virus, readsKmerPool=kmerPool, contigs=contigs, k=k
-        )
-        searchStringInstance.searchString()
-        break
+    searchForVirusesInstance = SearchForVirusesHamming(
+        viruses=viruses, reads=cleanedBiosample, k=k
+    )
+    searchForVirusesInstance.search()
     sfvStop = time.time()
     logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
     print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")"""

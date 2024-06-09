@@ -4,28 +4,24 @@ import json
 import pandas as pd
 import logging
 import time
-from utils.utils import ToKmers
 
 
-class SearchForViruses:
-    def __init__(self, viruses, readsKmerPool, contigs, k):
+class SearchForVirusesHamming:
+    def __init__(self, viruses, reads, k):
         self.viruses = viruses
-        self.readsKmerPool = readsKmerPool
-        self.contigs = contigs
+        self.reads = reads
         self.k = k
 
-    def virusesToKmers(self, virusSequence):
+    def virusesToKmers(self, k, sequence):
         kmerPool = {}
-        for key, virus in self.viruses.items():
-            sequence = virus["sequence"]
-
+        print(k)
         for index, base in enumerate(sequence):
-            kmer = sequence[index : index + self.k]
-            if len(kmer) >= self.k:
+            kmer = sequence[index : index + k]
+            if len(kmer) >= k:
                 if kmer not in kmerPool:
-                    kmerPool[kmer] = [{index: index + self.k}]
+                    kmerPool[kmer] = [{index: index + k}]
                 else:
-                    kmerPool[kmer].append({index: index + self.k})
+                    kmerPool[kmer].append({index: index + k})
         return kmerPool
 
     def hammingDistance(self, virus, contig):
@@ -35,21 +31,26 @@ class SearchForViruses:
                 distance += 1
         return distance
 
-    def align(self, virusKmerPool):
-        virusKmerPoolSet = set(virusKmerPool)
-        for id, contig in enumerate(self.contigs):
-            contigLen = len(contig)
-            kmerCount = 0
-            contigInfo = {"contig": contig, "length": contigLen, "v-kmers": []}
-            contigSet = set(
-                contig[i : i + self.k] for i in range(len(contig) - self.k + 1)
-            )  # Create set of kmers in contig
+    def align(self, virusKmerPool, read):
+        contigKmers = {}
+        for kmer in virusKmerPool:
+            print(len(kmer))
+            print(len(read))
 
     def search(self):
         logging.info("Search for Viruses: ")
         viruses = self.viruses
+        reads = self.reads
+
         for virus, virusData in viruses.items():
             virusSequence = virusData["sequence"]
-            start = time.time()
-            numGoodContigs = self.align(virusSequence)
-            end = time.time()
+            print(virus)
+            for index, read in reads.iterrows():
+                readLen = len(read["sequence"])
+                if len(virusSequence) < readLen:
+                    print(f"Skipping virus: {virus}")
+                    break
+                else:
+                    vKmers = self.virusesToKmers(k=readLen - 1, sequence=virusSequence)
+                    self.align(vKmers, read["sequence"])
+                    break

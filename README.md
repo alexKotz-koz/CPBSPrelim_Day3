@@ -1,15 +1,23 @@
 # CPBS Prelims Day 3
-> Goal: 
+> Metagenomic Sequence Assembler and Virome Characterizer 
 
-**The assignment for this homework:** _Test_
+**Goal:** Develop a general method for characterizing the viral communities in a metagenomic sample. The input to your method is a short-read fastq file (examples below) containing sequences from a metagenomic sample. 
 
 The outline of this project is as follows:
-- Read in a set of next generation sequence (NGS) reads and a query sequence.
-- Break each of the NGS sequence reads into k-mers (all possible substrings of length k that are contained in a string).
-- Construct a [De Bruijn Graph](https://en.wikipedia.org/wiki/De_Bruijn_graph) using the prefix and suffix of each k-mer. [Concept Overview](https://www.youtube.com/watch?v=TNYZZKrjCSk&list=PL2mpR0RYFQsBiCWVJSvVAO3OJ2t7DzoHA&index=51). 
-- Construct contigs (contiguous sequences) by following all possible paths through the De Brujin Graph.
-- Search each contig for the query string.
-- Return the longest contig that contains the query string.
+1. Read in the metagenomic biosample (.fastq) and known viruses (.fasta) 
+2. Perform Quality Control on the metagenomic sample:
+    - Convert existing quality control ascii values to a Phred score and perform pruning of low quality reads
+3. Break the biosample reads into k-mers (user defined)
+4. Create a de Bruijn Graph from the pool of biosample k-mers
+5. Create contigs via a Depth-First Search traverse across the de Bruijn Graph
+6. Search the contigs for substrings of the viral sequences
+    - Three implementations exist: 
+
+        a. Standard search string strategy (searchForViruses.py)
+
+        b. Leverage a Smith-Waterman local alignment algorithm for aligning each contig against each virus (searchForViruses_SW.py) ~Non-functional
+
+        c. Improve the Smith-Waterman algorithm by implementing multiprocessing (via the concurrent.futures module) (searchForViruses_SW_PP.py) ~ Non-functional
 
 ## Installation
 
@@ -27,7 +35,7 @@ OS X & Linux:
         ```
 
 ## Usage example
-- Write small description on how to use the program
+- 
 
 1. Open a terminal and navigate to /src/:
 ```sh
@@ -39,7 +47,8 @@ python3 main.py [options]
 ```
 Options:
 - `-h, --help`: Show help menu
-- `--graph`: Show graph or not (optional)
+- `-biosample`: Metagenomic biosample file (required)
+- `-k`: User defined size of the k-mers (required)
 
 ## Requirements
 - Python 3.9 or higher. 
