@@ -19,7 +19,9 @@ from components.deBruijnGraph import DeBruijnGraph
 from components.createContigs import CreateContigs
 
 from components.findVirusesInReads import FindViruses
-from components.searchForViruses_SW import SearchForViruses
+
+# from components.searchForViruses_SW import SearchForViruses
+from components.searchForViruses_SW_PP import SearchForViruses
 from components.searchForViruses_SS import SearchString
 
 # from components.searchForViruses_old import SearchForViruses
@@ -34,6 +36,10 @@ logging.basicConfig(
     format="%(message)s",
     level=logging.INFO,
 )
+module_logger = logging.getLogger(
+    "components.searchForViruses"
+)  # replace with the name of your module
+module_logger.setLevel(logging.ERROR)  # or any level you want
 
 
 def main():
