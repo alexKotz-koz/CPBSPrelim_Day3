@@ -6,8 +6,16 @@ class ViromeReport:
         self.contigs = contigs
         self.virusesInBiosample = virusesInBiosample
 
-    def generateReport(self):
+    def virusAbundance(self):
+        virusAbundance = {}
         contigs = self.contigs
+        totalNumContigs = len(contigs)
         vInB = self.virusesInBiosample
-        print(len(contigs))
-        # print(vInB)
+        for virus in vInB:
+            vName = virus["virus"]
+            numContigs = virus["numContigsInVirus"]
+            vProportion = numContigs / totalNumContigs
+            print(vProportion)
+
+    def generateReport(self):
+        self.virusAbundance()

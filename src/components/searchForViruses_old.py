@@ -57,7 +57,7 @@ class SearchString:
                     contigInfo["v-kmers"].append(
                         {
                             kmer: {
-                                "index": [
+                                "indexOfVKmerInContig": [
                                     contig.index(kmer),
                                     contig.index(kmer) + self.k,
                                 ]
