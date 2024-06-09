@@ -1,6 +1,8 @@
 .DS_Store
 src/__pycache__
 src/components/__pycache__
+venv
 src/data/biosample_data
 src/data/virus_data
 src/data/output_data/contigs_biofilm2000.txt
+src/utils/__pycache__

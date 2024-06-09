@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 import logging
 import time
-from utils.utils import ToKmers
+
+from concurrent.futures import ProcessPoolExecutor
 
 
 class SearchForViruses:
@@ -42,7 +43,7 @@ class SearchForViruses:
         # Initialize traceback matrix
         traceback_matrix = np.zeros((rows, cols), dtype=int)
 
-        # Fill in scoring and traceback matrices
+        # Starting from the second row and second column,
         for i in range(1, rows):
             for j in range(1, cols):
                 match = score_matrix[i - 1][j - 1] + (
@@ -79,10 +80,13 @@ class SearchForViruses:
                 aligned_virus = virus[j - 1] + aligned_virus
                 j -= 1
         endPosition = j
-        print(f"Done: {max_score}")
+        # print(f"Done: {max_score}")
         return max_score, aligned_contig, aligned_virus, startPosition, endPosition
 
     def calculateCoverage(self, alignments, virusLength):
+        """
+        The calculateCoverage function is used to calculate this coverage. It takes as input the alignments and the length of the virus sequence. It creates a boolean array of the same length as the virus sequence, where each position in the array corresponds to a position in the virus sequence. If a position in the virus sequence is covered by an alignment, the corresponding position in the array is set to True. The coverage is then calculated as the sum of the True values in the array (i.e., the number of positions covered by alignments) divided by the length of the virus sequence, multiplied by 100 to get a percentage.
+        """
         coverageArray = np.zeros(virusLength, dtype=bool)
         for alignment in alignments:
             start = alignment["startPosition"]
@@ -92,56 +96,74 @@ class SearchForViruses:
         coverage = np.sum(coverageArray) / virusLength * 100
         return coverage
 
+    def processContig(self, args):
+        index, contig, virusSequence, virusData = args
+        maxScore, alignedContig, alignedVirus, startPosition, endPosition = (
+            self.smith_waterman(contig, virusSequence)
+        )
+        result = {
+            "contig": index + 1,
+            "alignmentScore": int(maxScore),
+            "alignedContigSubstring": alignedContig,
+            "alignedVirusSubstring": alignedVirus,
+            "lengthOfAlignment": int(len(alignedContig)),
+            "startPosition": int(startPosition),
+            "endPosition": int(endPosition),
+        }
+        return virusData["name"], result
+
     def search(self):
         logging.info("Search for Viruses: ")
         virusContigObj = {}
         viruses = self.viruses
         vIndex = 0
+
+        totalContigs = len(self.contigs)
+        processedContigs = 0
+
         for virus, virusData in viruses.items():
+            print(f"Virus to align: {virus}")
+            print(f"Length of virus: {len(virusData['sequence'])}")
+
             vStart = time.time()
             virusSequence = virusData["sequence"]
             vIndex += 1
             alignments = []
-            for index, contig in enumerate(self.contigs):
-                maxScore, alignedContig, alignedVirus, startPosition, endPosition = (
-                    self.smith_waterman(contig, virusSequence)
-                )
-                print(
-                    f"Length of aligned contig: {len(alignedContig)}. Length of aligned Virus:{len(alignedVirus)}"
-                )
-                if virusData["name"] not in virusContigObj:
-                    virusContigObj[virusData["name"]] = [
-                        {
-                            "contig": index + 1,
-                            "alignmentScore": int(maxScore),
-                            "alignedContigSubstring": alignedContig,
-                            "alignedVirusSubstring": alignedVirus,
-                            "lengthOfAlignment": int(len(alignedContig)),
-                            "startPosition": int(startPosition),
-                            "endPosition": int(endPosition),
-                        }
-                    ]
-                else:
-                    virusContigObj[virusData["name"]].append(
-                        {
-                            "contig": index + 1,
-                            "alignmentScore": int(maxScore),
-                            "alignedContigSubstring": alignedContig,
-                            "alignedVirusSubstring": alignedVirus,
-                            "lengthOfAlignment": int(len(alignedContig)),
-                            "startPosition": int(startPosition),
-                            "endPosition": int(endPosition),
-                        }
-                    )
 
-                print(
-                    f"Contig {index}/{len(self.contigs)} on virus {vIndex}/{len(self.viruses)}"
+            with ProcessPoolExecutor() as executor:
+                results = executor.map(
+                    self.processContig,
+                    [
+                        (index, contig, virusSequence, virusData)
+                        for index, contig in enumerate(self.contigs)
+                    ],
                 )
+                for virusName, result in results:
+                    processedContigs += 1
+                    if processedContigs == totalContigs // 4:
+                        print(
+                            f"25% of the contigs have been processed in {round(time.time() - vStart,3)} seconds, from the start."
+                        )
+                    elif processedContigs == totalContigs // 2:
+                        print(
+                            f"50% of the contigs have been processed in {round(time.time() - vStart,3)} seconds, from the start."
+                        )
+                    elif processedContigs == (totalContigs * 3) // 4:
+                        print(
+                            f"75% of the contigs have been processed in {round(time.time() - vStart,3)} seconds, from the start."
+                        )
+
+                    if virusName not in virusContigObj:
+                        virusContigObj[virusName] = [result]
+                    else:
+                        virusContigObj[virusName].append(result)
             vStop = time.time()
             logging.info(f"\tVirus {virusData['name']} completed in {vStop-vStart}")
             coverage = self.calculateCoverage(alignments, len(virusSequence))
             virusContigObj[virusData["name"]].append({"coverage": coverage})
             logging.info(f"\tVirus coverage: {coverage}")
+
+        # print(virusContigObj)
         virusContigObjFile = os.path.join(self.outputDataDir, "VirusContigObject.json")
         with open(virusContigObjFile, "w") as file:
-            json.dump(virusContigObj, virusContigObjFile)
+            json.dump(virusContigObj, file)
