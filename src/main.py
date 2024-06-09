@@ -62,8 +62,9 @@ def main():
     if biosampleFile == "synthetic":
         syntheticDataDir = "data/synthetic_data"
         syntheticDataDir = os.path.join(currDir, syntheticDataDir)
-        print(syntheticDataDir)
+        print(f"syntheticDataDir: {syntheticDataDir}")
         syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
+        print(f"biosample location: {syntheticBiosampleFile}")
         syntheticVirusFile = os.path.join(syntheticDataDir, "virus.fasta")
         biosample_dict = {}
         with open(syntheticBiosampleFile, "r") as file:
