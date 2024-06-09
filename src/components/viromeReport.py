@@ -15,7 +15,9 @@ class ViromeReport:
             vName = virus["virus"]
             numContigs = virus["numContigsInVirus"]
             vProportion = numContigs / totalNumContigs
-            print(vProportion)
+            virusAbundance[vName] = {"abundance": vProportion}
+        return virusAbundance
 
     def generateReport(self):
-        self.virusAbundance()
+        virusAbundance = self.virusAbundance()
+        print(virusAbundance)

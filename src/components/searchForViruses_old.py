@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 
 class SearchString:
@@ -56,6 +57,7 @@ class SearchString:
         return contigsInfo
 
     def searchString(self):
+        logging.info("Search For Viruses:\n")
         virusesInBiosample = []
         for virus_id, virus in self.viruses.items():
             contigsExistInVirus = []
@@ -70,6 +72,9 @@ class SearchString:
                     "numContigsInVirus": len(contigsExistInVirus),
                     "contigsInVirus": contigsExistInVirus,
                 }
+            )
+            logging.info(
+                f"\tVirus: {virus['name']} aligns with {len(contigsExistInVirus)} contigs"
             )
         with open("data/output_data/virusesInBiosample.json", "w") as file:
             json.dump(virusesInBiosample, file)
