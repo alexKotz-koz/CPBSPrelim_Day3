@@ -69,7 +69,7 @@ def main():
         if os.path.exists(srcDir):
             pass
         else:
-            raise Exception(f"src dir: {srcDir} DNE")
+            raise Exception(f"src dir: {srcDir} DNE cuurent dir:{os.getcwd()}")
         if os.path.exists(dataDir):
             pass
         else:
@@ -84,7 +84,6 @@ def main():
         biosample_dict = {}
         with open(syntheticBiosampleFile, "r") as file:
             data = file.readlines()
-
         for index, line in enumerate(data):
             if line[0] == "@":
                 id = line.strip()

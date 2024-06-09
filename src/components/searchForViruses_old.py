@@ -1,14 +1,5 @@
-import sys
-import os
-import logging
-
-# required os set up for testing
-currentDir = os.path.dirname(os.path.abspath(__file__))
-parentDir = os.path.dirname(currentDir)
-sys.path.insert(0, parentDir)
-
 import json
-import pandas as pd
+import os
 
 
 class SearchString:
@@ -20,26 +11,22 @@ class SearchString:
 
     def virusToKmers(self, sequence):
         kmerPool = {}
-        for index, base in enumerate(sequence):
+        for index in range(len(sequence) - self.k + 1):
             kmer = sequence[index : index + self.k]
-            if len(kmer) >= self.k:
-                if kmer not in kmerPool:
-                    kmerPool[kmer] = [{index: index + self.k}]
-                else:
-                    kmerPool[kmer].append({index: index + self.k})
+            if kmer not in kmerPool:
+                kmerPool[kmer] = [index]
+            else:
+                kmerPool[kmer].append(index)
         return kmerPool
 
     def kmerPoolsToFile(self, virusKmerPool):
-
         with open("data/logs/r-kmerPool.json", "w") as file:
             json.dump(self.readsKmerPool, file)
 
-        # write reads and query kmerpool to files for analysis
         with open("data/logs/v-kmerPool.json", "w") as file:
             json.dump(virusKmerPool, file)
 
     def createContigsInfo(self, virus, virusKmerPool):
-        # build contigsInfo to store: contig sequence, length of contig, query string kmers that exist in the contig (with location of kmer in contig)
         contigsInfo = []
         for id, contig in enumerate(self.contigs):
             contigLen = len(contig)
@@ -51,8 +38,8 @@ class SearchString:
                 "length": contigLen,
                 "v-kmers": [],
             }
-            for index, kmer in enumerate(virusKmerPool):
-                if kmer in contig and kmer not in contigInfo["v-kmers"]:
+            for kmer in virusKmerPool:
+                if kmer in contig:
                     kmerCount += 1
                     contigInfo["v-kmers"].append(
                         {
@@ -70,10 +57,9 @@ class SearchString:
 
     def searchString(self):
         virusesInBiosample = []
-        for ssr, virus in self.viruses.items():
+        for virus_id, virus in self.viruses.items():
             contigsExistInVirus = []
             virusKmerPool = self.virusToKmers(virus["sequence"])
-            # build contigsInfo (see method for description)
             contigsInfo = self.createContigsInfo(virus["name"], virusKmerPool)
             for contig in contigsInfo:
                 if contig["kmerCount"] > 0:
@@ -84,9 +70,6 @@ class SearchString:
                     "numContigsInVirus": len(contigsExistInVirus),
                     "contigsInVirus": contigsExistInVirus,
                 }
-            )
-            logging.info(
-                f"There are {len(contigsExistInVirus)} contigs that align with virus: {virus['name']} of length {len(virus['sequence'])}"
             )
         with open("data/output_data/virusesInBiosample.json", "w") as file:
             json.dump(virusesInBiosample, file)
