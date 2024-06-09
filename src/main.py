@@ -68,7 +68,7 @@ def main():
         if os.path.exists(syntheticDataDir):
             pass
         else:
-            raise Exception(f"{syntheticDataDir} DNE")
+            raise Exception(f"{syntheticDataDir} DNE {os.getcwd()}")
         syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
         syntheticVirusFile = os.path.join(syntheticDataDir, "virus.fasta")
 
