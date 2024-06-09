@@ -76,16 +76,14 @@ def main():
         cleanedBiosample = pd.DataFrame(
             list(biosample_dict.items()), columns=["id", "sequence"]
         )
+
         with open(syntheticVirusFile, "r") as file:
             vdata = file.readlines()
-        # print(cleanedBiosample)
         for index, item in enumerate(vdata):
             if item[0] == ">":
                 id = item.strip()
                 seq = vdata[index + 1].strip()
-
             viruses[id] = {"name": id, "sequence": seq}
-        print(viruses)
     else:
         virusDataDir = "./data/virus_data"
         virusFile = "sequences_20240607_3345067.fasta"
@@ -119,7 +117,6 @@ def main():
     rtkStart = time.time()
     readsToKmersInstance = ReadsToKmers(readsData=cleanedBiosample, k=k)
     kmerPool, _ = readsToKmersInstance.extractKmers()
-    print(kmerPool)
     rtkStop = time.time()
     logging.info(f"Time Stamp: Reads to Kmers finished in {rtkStop-rtkStart}")
     print(f"Time Stamp: Reads to Kmers finished in {rtkStop-rtkStart}")

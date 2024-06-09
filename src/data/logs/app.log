@@ -1,8 +1,8 @@
 Main: 
 	BioSample File: synthetic
 	Size of K = 35
-Time Stamp: Reads to Kmers finished in 0.01747584342956543
-Time Stamp: DeBruijn Graph finished in 0.0005578994750976562
+Time Stamp: Reads to Kmers finished in 0.0011131763458251953
+Time Stamp: DeBruijn Graph finished in 0.0005197525024414062
 Create Contigs: 
 	Number of start nodes: 8
 	Number of end nodes: 6
@@ -10,7 +10,7 @@ Create Contigs:
 	Total number of contigs: [14]
 	Minimum contig length: 247
 	Maximum contig length: 317
-Time Stamp: Create Contigs finished in 0.010242938995361328
+Time Stamp: Create Contigs finished in 0.009727001190185547
 There are 1 contigs that align with virus: >Virus1 of length 302
 There are 9 contigs that align with virus: >Virus2 of length 339
 There are 9 contigs that align with virus: >Virus3 of length 334

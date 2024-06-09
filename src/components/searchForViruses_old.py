@@ -79,7 +79,11 @@ class SearchString:
                 if contig["kmerCount"] > 0:
                     contigsExistInVirus.append(contig)
             virusesInBiosample.append(
-                {"virus": virus["name"], "contigsInVirus": contigsExistInVirus}
+                {
+                    "virus": virus["name"],
+                    "numContigsInVirus": len(contigsExistInVirus),
+                    "contigsInVirus": contigsExistInVirus,
+                }
             )
             logging.info(
                 f"There are {len(contigsExistInVirus)} contigs that align with virus: {virus['name']} of length {len(virus['sequence'])}"
