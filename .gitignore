@@ -6,3 +6,4 @@ src/data/biosample_data
 src/data/virus_data
 src/data/output_data/contigs_biofilm2000.txt
 src/utils/__pycache__
+src/data/output_data/contigs.txt
