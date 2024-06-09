@@ -160,4 +160,4 @@ class CreateContigs:
 
         logging.info(f"\tMinimum contig length: {len(min(contigs, key=len))}")
         logging.info(f"\tMaximum contig length: {len(max(contigs, key=len))}")
-        return contigs, self.allPaths
+        return contigs

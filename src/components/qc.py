@@ -8,7 +8,8 @@ import logging
 class QualityControl:
     def __init__(self, biosample):
         self.biosample = biosample
-        self.dataDir = "./data/logs"
+        self.logDataDir = "./data/logs"
+        self.outputDataDir = "./data/output_data"
 
     # Phred and P Error calculations: https://www.drive5.com/usearch/manual/quality_score.html
 
@@ -65,11 +66,11 @@ class QualityControl:
             }
         avgSeqLength = sum(sequenceLengths) / len(sequenceLengths)
 
-        qcReportFile = os.path.join(self.dataDir, "QualityControlReport.json")
+        qcReportFile = os.path.join(self.logDataDir, "QualityControlReport.json")
         with open(qcReportFile, "w") as file:
             json.dump(qualityControlReport, file)
 
-        cleanedBiosampleFile = os.path.join(self.dataDir, "CleanedBioSample.json")
+        cleanedBiosampleFile = os.path.join(self.outputDataDir, "CleanedBioSample.json")
         with open(cleanedBiosampleFile, "w") as file:
             json.dump(cleanedBiosample, file)
 
@@ -77,7 +78,7 @@ class QualityControl:
         biosampleDf = pd.DataFrame(biosampleList)
 
         logging.info("Quality Control: ")
-        logging.info(f"\t# of reads: {len(cleanedBiosample)}")
+        logging.info(f"\t# of cleaned reads: {len(cleanedBiosample)}")
         logging.info(f"\tAverage read length: {avgSeqLength}")
         logging.info(f"\tMinimum read length: {min(sequenceLengths)}")
         logging.info(f"\tMaximum read length: {max(sequenceLengths)}")
