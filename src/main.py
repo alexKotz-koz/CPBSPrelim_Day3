@@ -126,7 +126,7 @@ def main():
 
     qcStart = time.time()
     qualityControlInstance = QualityControl(biosample=biosample)
-    cleanedBiosample, minimumReadLength, qualityControlReport = (
+    cleanedBiosample, minimumReadLength, qualityControlReport, qcMetadata = (
         qualityControlInstance.qualityControl()
     )
     qcStop = time.time()
@@ -178,13 +178,18 @@ def main():
     logging.info(f"Time Stamp: Find Viruses finished in {sfvTotal}")
     print(f"Time Stamp: Find Viruses finished in {sfvTotal}")
 
-    """viromeReportInstance = ViromeReport(contigs, virusesInBiosample)
-    viromeReportInstance.generateReport()"""
+    viromeReportInstance = ViromeReport(
+        contigs, virusesInBiosample, biosampleFile, qcMetadata
+    )
+    viromeReportInstance.generateReport()
 
     codeReportInstance = CodeReport(
         qualityControlReport=qualityControlReport,
         contigs=contigs,
         componentRunTimes=componentRunTimes,
+        qcMetadata=qcMetadata,
+        biosampleFile=biosampleFile,
+        k=k,
     )
     codeReportInstance.generateReport()
 
@@ -193,4 +198,4 @@ if __name__ == "__main__":
     start = time.time()
     main()
     stop = time.time()
-    logging.info(f"Project execution time: {start-stop}")
+    logging.info(f"Project execution time: {stop-start}")

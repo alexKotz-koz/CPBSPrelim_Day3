@@ -30,6 +30,7 @@ class QualityControl:
         qscores = []
         perrorscores = []
         sequenceLengths = []
+        lengthOriginalBiosample = len(biosample)
         for id, read in biosample.items():
             id = id
             sequence = read["sequence"]
@@ -82,5 +83,12 @@ class QualityControl:
         logging.info(f"\tAverage read length: {avgSeqLength}")
         logging.info(f"\tMinimum read length: {min(sequenceLengths)}")
         logging.info(f"\tMaximum read length: {max(sequenceLengths)}")
+        qcMetaData = {
+            "lengthOriginalBiosample": lengthOriginalBiosample,
+            "lengthCleanedBiosample": len(cleanedBiosample),
+            "averageReadLength": avgSeqLength,
+            "minimumReadLength": min(sequenceLengths),
+            "maximumReadLength": max(sequenceLengths),
+        }
 
-        return biosampleDf, min(sequenceLengths), qualityControlReport
+        return biosampleDf, min(sequenceLengths), qualityControlReport, qcMetaData

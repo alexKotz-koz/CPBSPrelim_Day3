@@ -59,7 +59,6 @@ class SearchString:
             }
             kmerCount = 0
             contigInfo = {
-                "virus": virus,
                 "contigId": id + 1,
                 "contig": contig,
                 "length": contigLen,
