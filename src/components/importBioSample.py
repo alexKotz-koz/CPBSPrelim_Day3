@@ -9,6 +9,7 @@ class ImportBioSample:
 
     def importBioSample(self):
         dataDir = "./data/biosample_data"
+        os.makedirs(dataDir, exist_ok=True)
         biosample = self.biosample
         biosampleFile = self.biosampleFile
         biosampleDataDir = ""
@@ -19,6 +20,8 @@ class ImportBioSample:
             biosampleDataDir = os.path.join(dataDir, "cryoconite")
         elif "bat" in biosampleFile:
             biosampleDataDir = os.path.join(dataDir, "bat")
+        elif "synthetic" in biosampleFile:
+            biosampleDataDir = dataDir
         elif "test" in biosampleFile:
             biosampleDataDir = ""
 
@@ -41,6 +44,4 @@ class ImportBioSample:
 
         biosampleList = [{"id": id, **data} for id, data in biosample.items()]
 
-        biosampleDf = pd.DataFrame(biosampleList)
-
-        return biosample, biosampleDf
+        return biosample

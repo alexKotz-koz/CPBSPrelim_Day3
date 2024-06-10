@@ -9,11 +9,13 @@ class QualityControl:
     def __init__(self, biosample):
         self.biosample = biosample
         self.logDataDir = "./data/logs"
+        os.makedirs(self.logDataDir, exist_ok=True)
         self.outputDataDir = "./data/output_data"
+        os.makedirs(self.outputDataDir, exist_ok=True)
 
     # Phred and P Error calculations: https://www.drive5.com/usearch/manual/quality_score.html
 
-    # TODO: Plot distribution of mean Q per read (ignoring ^)
+    # TODO: Plot distribution of mean Q per read
 
     def asciiToPhred(self, character):
         return ord(character) - 33

@@ -7,7 +7,7 @@ import pandas as pd
 # os management for testing
 sys.path.insert(0, "../src/components")
 
-from searchForVirsues_old import SearchString
+from searchForViruses import SearchString
 
 
 class TestSearchString(unittest.TestCase):

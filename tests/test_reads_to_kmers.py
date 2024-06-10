@@ -30,10 +30,8 @@ class TestReadsToKmers(unittest.TestCase):
 
     def testExtractKmers(self):
         rtk = ReadsToKmers(self.dfReadsData, 5)
-        kmerPool, k = rtk.extractKmers()
-        k = 5  # for test dataset
+        kmerPool = rtk.extractKmers()
         self.checkKmerPool(kmerPool=kmerPool)
-        self.checkK(k=k)
 
     def checkKmerPool(self, kmerPool):
         self.assertDictEqual(
@@ -64,9 +62,6 @@ class TestReadsToKmers(unittest.TestCase):
                 "GCTAG": {"@Read4": [{4: 9}]},
             },
         )
-
-    def checkK(self, k):
-        self.assertEqual(k, 5)
 
 
 if __name__ == "__main__":

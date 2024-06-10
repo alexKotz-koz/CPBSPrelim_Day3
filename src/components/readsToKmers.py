@@ -20,4 +20,4 @@ class ReadsToKmers:
             for index, kmer in enumerate(kmers):
                 kmerPool[kmer][id].append({index: index + k})
 
-        return kmerPool, k
+        return kmerPool

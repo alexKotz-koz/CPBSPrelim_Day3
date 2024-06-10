@@ -1,23 +1,29 @@
 import json
 import os
 import logging
-from multiprocessing import pool
+from multiprocessing import Pool
+import time
 
-# In your multiprocessing module
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.CRITICAL)
+logDir = "data/logs"
+os.makedirs(logDir, exist_ok=True)
 
-handler = logging.FileHandler("multiprocessing.log")
+# Set up logging for the searchForViruses.py file
+search_logger = logging.getLogger(__name__)
+search_logger.setLevel(logging.INFO)
+
+search_handler = logging.FileHandler(os.path.join(logDir, "searchForViruses.log"))
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
+search_handler.setFormatter(formatter)
 
-logger.addHandler(handler)
+search_logger.addHandler(search_handler)
 
 
 class SearchString:
-    def __init__(self, viruses, readsKmerPool, contigs, k):
+    def __init__(self, viruses, readsKmerPoolFile, contigs, k):
         self.viruses = viruses
         self.contigs = contigs
+        with open(readsKmerPoolFile, "r") as file:
+            readsKmerPool = json.load(file)
         self.readsKmerPool = readsKmerPool
         self.k = k
         self.maxHammingDistance = 2
@@ -33,8 +39,6 @@ class SearchString:
         return kmerPool
 
     def kmerPoolsToFile(self, virusKmerPool):
-        with open("data/logs/r-kmerPool.json", "w") as file:
-            json.dump(self.readsKmerPool, file)
 
         with open("data/logs/v-kmerPool.json", "w") as file:
             json.dump(virusKmerPool, file)
@@ -64,9 +68,7 @@ class SearchString:
             for virusKmer in virusKmerPool:
                 for contigKmer in contigKmers:
                     distance = self.hammingDistance(virusKmer, contigKmer)
-                    if (
-                        distance <= self.maxHammingDistance
-                    ):  # max_distance is the maximum allowed Hamming distance
+                    if distance <= self.maxHammingDistance:
                         kmerCount += 1
                         contigInfo["v-kmers"].append(
                             {
@@ -76,22 +78,10 @@ class SearchString:
                                         contig.index(contigKmer) + self.k,
                                     ],
                                     "hammingDistance": distance,
+                                    "kmerLength": len(contigKmer),
                                 }
                             }
                         )
-            """for kmer in virusKmerPool:
-                if kmer in contigKmers:
-                    kmerCount += 1
-                    contigInfo["v-kmers"].append(
-                        {
-                            kmer: {
-                                "indexOfVKmerInContig": [
-                                    contig.index(kmer),
-                                    contig.index(kmer) + self.k,
-                                ]
-                            }
-                        }
-                    )"""
             contigInfo["kmerCount"] = kmerCount
             contigsInfo.append(contigInfo)
         return contigsInfo
@@ -99,23 +89,43 @@ class SearchString:
     def searchString(self):
         logging.info("Search For Viruses:\n")
         virusesInBiosample = []
-        for virus_id, virus in self.viruses.items():
+        # break all viruses into kmers
+        virusKmerPools = {
+            virus_id: self.virusToKmers(virus["sequence"])
+            for virus_id, virus in self.viruses.items()
+        }
+
+        for virusId, virus in self.viruses.items():
+            vStart = time.time()
             contigsExistInVirus = []
-            virusKmerPool = self.virusToKmers(virus["sequence"])
+            contigsTested = []
+            virusKmerPool = virusKmerPools[virusId]
+
             contigsInfo = self.createContigsInfo(virus["name"], virusKmerPool)
+
             for contig in contigsInfo:
                 if contig["kmerCount"] > 0:
                     contigsExistInVirus.append(contig)
+                contigsTested.append(contig)
             virusesInBiosample.append(
                 {
                     "virus": virus["name"],
                     "numContigsInVirus": len(contigsExistInVirus),
                     "contigsInVirus": contigsExistInVirus,
+                    "contigsTested": contigsTested,
                 }
             )
+            vStop = time.time()
+
+            print(f"\t{len(contigsExistInVirus)} contigs align with {virus['name']} ")
+
             logging.info(
-                f"\t{len(contigsExistInVirus)} contigs aligns with {virus['name']} "
+                f"\t{len(contigsExistInVirus)} contigs align with {virus['name']} "
             )
+            logging.info(f"\tVirus {virus['name']} split time: {vStop-vStart}")
+            logging.info(f"\tVirus: {virus['name']} length: {len(virus['sequence'])}bp")
+
         with open("data/output_data/virusesInBiosample.json", "w") as file:
             json.dump(virusesInBiosample, file)
+
         return virusesInBiosample

@@ -13,5 +13,31 @@ Download Biosamples:
 Download Viral Data:
 1. Download 2000 random viruses from: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide
     - 6000 random viruses were downloaded for the development and testing of this project
+    - Columns selected were: Accession number, Organism Name
     b. Download the Nucleocytoviricota refseq genomes from: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Genome&VirusLineage_ss=Nucleocytoviricota,%20taxid:2732007
         - These are the viruses that were found in the red snow alge from: https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-024-01796-y
+
+
+Download NCLDV Marker Genes:
+1. Locate the marker genes @:
+    - PolB: https://www.genome.jp/entry/elp:P12B_c0053
+    - mRNAc: https://www.genome.jp/entry/hsa:8732
+    - RNApl: https://www.genome.jp/entry/cqu:CpipJ_CPIJ018338
+    - RNAps: https://www.genome.jp/entry/sbia:133503957
+    - RNR/SFII: https://www.genome.jp/entry/aor:AO090005000418
+    - VLTF3: https://www.genome.jp/entry/vg:26049060
+    - A32: https://www.ncbi.nlm.nih.gov/gene/11464360
+    - D5: https://www.ncbi.nlm.nih.gov/gene/54974987
+2. Download NCBI sequences
+3. Copy and paste KEGG sequences into separate files in src/data/virus_data with the corresponding names:
+    - RNAplGeneFile = "kegg_RNApl.fasta"
+    - RNApsGeneFile = "kegg_RNAps.fasta"
+    - mRNAcGeneFile = "kegg_mRNAc.fasta"
+    - RNRSFIIGeneFile = "kegg_RNRSFII.fasta"
+    - VLTF3GeneFile = "kegg_VLTF3.fasta"
+    - PolBGeneFile = "kegg_polB.fasta"
+- Supporting references:
+    - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7136201/
+        Moniruzzaman M, Martinez-Gutierrez CA, Weinheimer AR, Aylward FO. Dynamic genome evolution and complex virocell metabolism of globally-distributed giant viruses. Nat Commun. 2020 Apr 6;11(1):1710. doi: 10.1038/s41467-020-15507-2. PMID: 32249765; PMCID: PMC7136201.
+
+    - https://github.com/faylward/ncldv_markersearch/blob/master/hmm/NCLDV.list

@@ -1,18 +1,18 @@
 import pandas as pd
 import numpy as np
 import logging
-import logging.handlers
+from logging.handlers import RotatingFileHandler
+
 import queue
 import argparse
 import time
 import os
 import sys
 import cProfile
-import pstats
+import json
 
 from components.importBioSample import ImportBioSample
 from components.importVirus import ImportVirus
-from components.impotVirusBat import ImportVirusBat
 from components.qc import QualityControl
 
 from components.readsToKmers import ReadsToKmers
@@ -21,21 +21,28 @@ from components.createContigs import CreateContigs
 
 # from components.searchForViruses_SW import SearchForViruses
 # from components.searchForViruses_SW_PP import SearchForViruses
-from components.searchForViruses_hamming import SearchForVirusesHamming
-from components.searchForViruses_old import SearchString
+from components.searchForViruses import SearchString
 
 from components.viromeReport import ViromeReport
-
+from components.codeReport import CodeReport
 
 logDir = "data/logs"
 os.makedirs(logDir, exist_ok=True)
+# Set up logging with a rotating file handler for the main.py file
+log_file = os.path.join(logDir, "app.log")
 
-logging.basicConfig(
-    filename=f"{logDir}/app.log",
-    filemode="w",
-    format="%(message)s",
-    level=logging.INFO,
+handler = RotatingFileHandler(
+    log_file,
+    maxBytes=1024 * 1024,  # 1MB
+    backupCount=5,  # Keep 5 backup logs
 )
+
+formatter = logging.Formatter("%(message)s")
+handler.setFormatter(formatter)
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 
 def main():
@@ -58,122 +65,132 @@ def main():
     k = args.k
     logging.info(f"\tBioSample File: {biosampleFile}")
     logging.info(f"\tSize of K = {k}")
-    # Simulated Data
+
+    componentRunTimes = {}
+
     viruses = {}
+    virusDataDir = "./data/virus_data"
+    virusFile = "sequences_20240607_3345067.fasta"
+    virusFile2 = "sequences_20240607_570283.fasta"
+    virusFile3 = "sequences_20240607_9774926.fasta"
+    virusFile4 = "sequences_20240607_5959983.fasta"
+    NCLDVFile = "sequences_ Nucleocytoviricota.fasta"
+    PolBGeneFile = "kegg_polB.fasta"
+    A32GeneFile = "ncbi_A32.fna"
+    D5GeneFile = "ncbi_D5.fna"
+    RNAplGeneFile = "kegg_RNApl.fasta"
+    RNApsGeneFile = "kegg_RNAps.fasta"
+    mRNAcGeneFile = "kegg_mRNAc.fasta"
+    RNRSFIIGeneFile = "kegg_RNRSFII.fasta"
+    VLTF3GeneFile = "kegg_VLTF3.fasta"
 
-    if biosampleFile == "synthetic":
-        if os.path.exists(dataDir):
-            pass
-        else:
-            raise Exception(f"Syntheticdir still DNE: {dataDir}")
-        syntheticDataDir = os.path.join(dataDir, "synthetic_data")
-        syntheticBiosampleFile = os.path.join(syntheticDataDir, "biosample.fastq")
-        syntheticVirusFile = os.path.join(syntheticDataDir, "virus.fasta")
+    # list of file locations, can be modified by adjusting
+    NCLDVFileLocation = [os.path.join(virusDataDir, NCLDVFile)]
+    NCLDVGeneFileLocations = [
+        os.path.join(virusDataDir, PolBGeneFile),
+        os.path.join(virusDataDir, A32GeneFile),
+        os.path.join(virusDataDir, D5GeneFile),
+        os.path.join(virusDataDir, RNAplGeneFile),
+        os.path.join(virusDataDir, RNApsGeneFile),
+        os.path.join(virusDataDir, mRNAcGeneFile),
+        os.path.join(virusDataDir, RNRSFIIGeneFile),
+        os.path.join(virusDataDir, VLTF3GeneFile),
+    ]
+    allVirusDataFileLocations = [
+        os.path.join(virusDataDir, virusFile),
+        os.path.join(virusDataDir, virusFile2),
+        os.path.join(virusDataDir, virusFile3),
+        os.path.join(virusDataDir, virusFile4),
+        os.path.join(virusDataDir, NCLDVFile),
+    ]
+    syntheticVirusFileLocation = [os.path.join(virusDataDir, "synthetic_virus.fasta")]
 
-        biosample_dict = {}
-        with open(syntheticBiosampleFile, "r") as file:
-            data = file.readlines()
-        for index, line in enumerate(data):
-            if line[0] == "@":
-                id = line.strip()
-                if index + 1 < len(data):
-                    read = data[index + 1].strip()
-                    biosample_dict[id] = read
-
-        cleanedBiosample = pd.DataFrame(
-            list(biosample_dict.items()), columns=["id", "sequence"]
-        )
-
-        with open(syntheticVirusFile, "r") as file:
-            vdata = file.readlines()
-        for index, item in enumerate(vdata):
-            if item[0] == ">":
-                id = item.strip()
-                seq = vdata[index + 1].strip()
-            viruses[id] = {"name": id, "sequence": seq}
+    if "synthetic" in biosampleFile:
+        virusDataFileLocations = syntheticVirusFileLocation
     else:
-        virusDataDir = "./data/virus_data"
-        virusFile = "sequences_20240607_3345067.fasta"
-        virusFile2 = "sequences_20240607_570283.fasta"
-        virusFile3 = "sequences_20240607_9774926.fasta"
-        virusFile4 = "sequences_20240607_5959983.fasta"
-        NCLDVFile = "sequences_ Nucleocytoviricota.fasta"
-        NCLDVFileLocation = [os.path.join(virusDataDir, NCLDVFile)]
-        virusDataFileLocations = [
-            os.path.join(virusDataDir, virusFile),
-            os.path.join(virusDataDir, virusFile2),
-            os.path.join(virusDataDir, virusFile3),
-            os.path.join(virusDataDir, virusFile4),
-            os.path.join(virusDataDir, NCLDVFile),
-        ]
+        virusDataFileLocations = NCLDVGeneFileLocations
 
-        importBioSampleInstance = ImportBioSample(biosampleFile=biosampleFile)
-        biosample, biosampleDf = importBioSampleInstance.importBioSample()
+    bioStart = time.time()
+    importBioSampleInstance = ImportBioSample(biosampleFile=biosampleFile)
+    biosample = importBioSampleInstance.importBioSample()
+    bioStop = time.time()
+    bioTotal = bioStop - bioStart
+    componentRunTimes["importBioSample"] = bioTotal
 
-        importVirusInstance = ImportVirus()
-        viruses = importVirusInstance.importVirusData(fileLocations=NCLDVFileLocation)
+    virusStart = time.time()
+    importVirusInstance = ImportVirus()
+    viruses = importVirusInstance.importVirusData(fileLocations=virusDataFileLocations)
+    virusStop = time.time()
+    virusTotal = virusStop - virusStart
+    componentRunTimes["importVirus"] = virusTotal
 
-        qualityControlInstance = QualityControl(biosample=biosample)
-        cleanedBiosample, minimumReadLength, qualityControlReport = (
-            qualityControlInstance.qualityControl()
+    qcStart = time.time()
+    qualityControlInstance = QualityControl(biosample=biosample)
+    cleanedBiosample, minimumReadLength, qualityControlReport = (
+        qualityControlInstance.qualityControl()
+    )
+    qcStop = time.time()
+    qcTotal = qcStop - qcStart
+    componentRunTimes["qc"] = qcTotal
+
+    if k > (minimumReadLength - 2):
+        print(
+            f"\nK must be at least one less than the size of the smallest read.\nMinimum read length for this sample is: {minimumReadLength}"
         )
-        if k > (minimumReadLength - 2):
-            print(
-                f"\nK must be at least one less than the size of the smallest read.\nMinimum read length for this sample is: {minimumReadLength}"
-            )
-            sys.exit(1)
+        sys.exit(1)
 
     rtkStart = time.time()
     readsToKmersInstance = ReadsToKmers(readsData=cleanedBiosample, k=k)
-    kmerPool, _ = readsToKmersInstance.extractKmers()
+    kmerPool = readsToKmersInstance.extractKmers()
     rtkStop = time.time()
-    logging.info(f"Time Stamp: Reads to Kmers finished in {rtkStop-rtkStart}")
-    print(f"Time Stamp: Reads to Kmers finished in {rtkStop-rtkStart}")
+    rtkTotal = rtkStop - rtkStart
+    componentRunTimes["readsToKmers"] = rtkTotal
+    logging.info(f"Time Stamp: Reads to Kmers finished in {rtkTotal}")
+    print(f"Time Stamp: Reads to Kmers finished in {rtkTotal}")
 
     dbgStart = time.time()
     debruijnGraphInstance = DeBruijnGraph(kmerPool=kmerPool, k=k)
     nodes, edges = debruijnGraphInstance.constructGraph()
     dbgStop = time.time()
-    logging.info(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStart}")
-    print(f"Time Stamp: DeBruijn Graph finished in {dbgStop-dbgStart}")
-    # print(f"edges: {edges}")
+    dbgTotal = dbgStop - dbgStart
+    componentRunTimes["deBruijnGraph"] = dbgTotal
+    logging.info(f"Time Stamp: DeBruijn Graph finished in {dbgTotal}")
+    print(f"Time Stamp: DeBruijn Graph finished in {dbgTotal}")
+
     ccStart = time.time()
     createContigsInstance = CreateContigs(graph=edges)
-    # contigs, allPaths = cProfile.run(createContigsInstance.createContigs(), "output.dat")
     contigs = createContigsInstance.createContigs()
     ccStop = time.time()
-    logging.info(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")
-    print(f"Time Stamp: Create Contigs finished in {ccStop-ccStart}")
+    ccTotal = ccStop - ccStart
+    componentRunTimes["createContigs"] = ccTotal
+    logging.info(f"Time Stamp: Create Contigs finished in {ccTotal}")
+    print(f"Time Stamp: Create Contigs finished in {ccTotal}")
 
-    """p = pstats.Stats("output.dat")
-    p.sort_stats("cumulative").print_stats(
-        10
-    )  # Print the 10 most time-consuming functions"""
-
-    searchForVirusesInstance = SearchString(viruses, kmerPool, contigs, k)
+    # Add comments about switch to the SW instances
+    sfvStart = time.time()
+    searchForVirusesInstance = SearchString(
+        viruses, "data/logs/r-kmerPool.json", contigs, k
+    )
     virusesInBiosample = searchForVirusesInstance.searchString()
-
-    """sfvStart = time.time()
-    searchForVirusesInstance = SearchForViruses(
-        viruses=viruses, contigs=cleanedBiosample, k=k
-    )
-    searchForVirusesInstance.search()
     sfvStop = time.time()
-    logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
-    print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")"""
+    sfvTotal = sfvStop - sfvStart
+    componentRunTimes["searchForViruses"] = sfvTotal
+    logging.info(f"Time Stamp: Find Viruses finished in {sfvTotal}")
+    print(f"Time Stamp: Find Viruses finished in {sfvTotal}")
 
-    """sfvStart = time.time()
-    searchForVirusesInstance = SearchForVirusesHamming(
-        viruses=viruses, reads=cleanedBiosample, k=k
+    """viromeReportInstance = ViromeReport(contigs, virusesInBiosample)
+    viromeReportInstance.generateReport()"""
+
+    codeReportInstance = CodeReport(
+        qualityControlReport=qualityControlReport,
+        contigs=contigs,
+        componentRunTimes=componentRunTimes,
     )
-    searchForVirusesInstance.search()
-    sfvStop = time.time()
-    logging.info(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")
-    print(f"Time Stamp: Find Viruses finished in {sfvStop-sfvStart}")"""
-
-    viromeReportInstance = ViromeReport(contigs, virusesInBiosample)
-    viromeReportInstance.generateReport()
+    codeReportInstance.generateReport()
 
 
 if __name__ == "__main__":
+    start = time.time()
     main()
+    stop = time.time()
+    logging.info(f"Project execution time: {start-stop}")

@@ -8,6 +8,8 @@ class ViromeReport:
     def __init__(self, contigs, virusesInBiosample):
         self.contigs = contigs
         self.virusesInBiosample = virusesInBiosample
+        self.reportDir = "data/reports"
+        os.makedirs(self.reportDir, exist_ok=True)
 
     def virusAbundance(self):
         virusAbundance = {}
@@ -22,12 +24,9 @@ class ViromeReport:
         return virusAbundance
 
     def generateReport(self):
+        # virus abundance
         virusAbundance = self.virusAbundance()
-        print(virusAbundance)
-        # Convert the dictionary to a pandas DataFrame
         df = pd.DataFrame(virusAbundance).T.reset_index()
         df.columns = ["Virus", "Abundance"]
-
-        # Create the bar plot
         sns.barplot(x="Virus", y="Abundance", data=df)
         plt.show()

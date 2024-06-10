@@ -7,6 +7,6 @@ dependencies:
   - pandas
   - numpy
   - pip
-  - networkx
+  - seaborn
   - matplotlib
   - psutil
