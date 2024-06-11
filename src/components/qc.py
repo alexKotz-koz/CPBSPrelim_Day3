@@ -14,15 +14,18 @@ class QualityControl:
         os.makedirs(self.outputDataDir, exist_ok=True)
 
     # Phred and P Error calculations: https://www.drive5.com/usearch/manual/quality_score.html
-
-    # TODO: Plot distribution of mean Q per read
-
+    # Input: character to convert
+    # Output: Q-score
     def asciiToPhred(self, character):
         return ord(character) - 33
 
+    # Input: Q-score
+    # Output: probability error
     def calculatePError(self, q):
         return round(10 ** (-q / 10.0), 5)
 
+    # Input: biosample dictionary
+    # Output: cleaned biosample dictionary, dataframe, and quality control information used in reports and logging
     def qualityControl(self):
         biosample = self.biosample
         cleanedBiosample = {}

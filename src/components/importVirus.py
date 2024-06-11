@@ -8,6 +8,8 @@ class ImportVirus:
         os.makedirs(self.dataDir, exist_ok=True)
         self.virusData = []
 
+    # Input: list of virus file names
+    # Output: virus dictionary
     def importVirusData(self, fileLocations):
         # import virus files
         for fileLocation in fileLocations:
@@ -17,9 +19,10 @@ class ImportVirus:
         sequence = []
         virusDataDict = {}
         virusNames = []
+        # identify different fasta components and save them into a dict
         for line in self.virusData:
             if line[0] == ">":
-                if sequence:  # save the previous record
+                if sequence:
                     sequence = "".join(sequence).upper()
                     virusDataDict[accession] = {
                         "name": organismName,
@@ -32,17 +35,16 @@ class ImportVirus:
                 accession = metadata[0].strip()
                 organismName = metadata[1].strip()
 
-                # skip possible duplicate virus
                 if organismName in virusNames:
                     print(f"Duplicate Virus, skipping: {organismName}")
                     continue
 
                 virusNames.append(organismName)
 
-            elif line.strip():  # non-empty line
+            elif line.strip():
                 sequence.append(line.strip())
 
-        if sequence:  # save the last record
+        if sequence:
             sequence = "".join(sequence).upper()
             virusDataDict[accession] = {
                 "name": organismName,

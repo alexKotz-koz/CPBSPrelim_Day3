@@ -1,0 +1,19 @@
+Code Report: 
+
+Biosample File: synthetic_biosample.fastq
+Size of User-defined K: 5
+
+Component Execution Times: 
+	importBioSample.py completed in 0.0003108978271484375 seconds
+	importVirus.py completed in 0.00042700767517089844 seconds
+	qc.py completed in 0.0013356208801269531 seconds
+	readsToKmers.py completed in 0.00015997886657714844 seconds
+	deBruijnGraph.py completed in 1.1920928955078125e-05 seconds
+	createContigs.py completed in 0.0003368854522705078 seconds
+	searchForViruses.py completed in 0.023762941360473633 seconds
+
+Contig Information: 
+	Total Number of contigs created: 4
+	Minimum Contig Length: 7 bp's
+	Maximum Contig Length: 13 bp's
+	Average Contig Length: 9.5 bp

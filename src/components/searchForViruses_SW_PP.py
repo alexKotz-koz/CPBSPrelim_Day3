@@ -16,34 +16,34 @@ class SearchForViruses:
         self.outputDataDir = "./data/output_data"
 
     def smith_waterman(
-        self, contig, virus, match_score=3, mismatch_score=-1, gap_penalty=-2
+        self, contig, virus, matchScore=3, mismatchScore=-1, gapPenalty=-2
     ):
-        # Initialize scoring matrix
+        # initialize scoring matrix
         rows = len(contig) + 1
         cols = len(virus) + 1
         scoreMatrix = np.zeros((rows, cols), dtype=int)
 
-        # Initialize traceback matrix
+        # initialize traceback matrix
         traceBackMatrix = np.zeros((rows, cols), dtype=int)
 
-        # Starting from the second row and second column,
+        # starting from the second row and second column,
         for i in range(1, rows):
             for j in range(1, cols):
                 match = scoreMatrix[i - 1][j - 1] + (
-                    match_score if contig[i - 1] == virus[j - 1] else mismatch_score
+                    matchScore if contig[i - 1] == virus[j - 1] else mismatchScore
                 )
-                delete = scoreMatrix[i - 1][j] + gap_penalty
-                insert = scoreMatrix[i][j - 1] + gap_penalty
+                delete = scoreMatrix[i - 1][j] + gapPenalty
+                insert = scoreMatrix[i][j - 1] + gapPenalty
                 scoreMatrix[i][j] = max(match, delete, insert, 0)
                 traceBackMatrix[i][j] = np.argmax([0, match, delete, insert])
 
-        # Find the maximum score in the matrix
+        # find the maximum score in the matrix
         maxScore = np.max(scoreMatrix)
 
-        # Find the index of the maximum score
+        # find the index of the maximum score
         maxIndex = np.unravel_index(np.argmax(scoreMatrix), scoreMatrix.shape)
 
-        # Traceback to reconstruct the aligned sequences
+        # traceback to reconstruct the aligned sequences
         alignedContig = ""
         alignedVirus = ""
         i, j = maxIndex
@@ -63,10 +63,10 @@ class SearchForViruses:
                 alignedVirus = virus[j - 1] + alignedVirus
                 j -= 1
         endPosition = j
-        # print(f"Done: {maxScore}")
         return maxScore, alignedContig, alignedVirus, startPosition, endPosition
 
     def calculateCoverage(self, alignments, virusLength):
+        # create a bool array to store coverage
         coverageArray = np.zeros(virusLength, dtype=bool)
         for alignment in alignments:
             start = alignment["startPosition"]
@@ -77,6 +77,7 @@ class SearchForViruses:
         return coverage
 
     def processContig(self, args):
+        # generator function for processing each contig
         index, contig, virusSequence, virusData = args
         maxScore, alignedContig, alignedVirus, startPosition, endPosition = (
             self.smith_waterman(contig, virusSequence)
@@ -104,7 +105,6 @@ class SearchForViruses:
             print(f"Virus to align: {virus}")
             print(f"Length of virus: {len(virusData['sequence'])}")
 
-            vStart = time.time()
             virusSequence = virusData["sequence"]
             vIndex += 1
             alignments = []
@@ -119,6 +119,7 @@ class SearchForViruses:
                 )
                 for virusName, result in results:
                     processedContigs += 1
+                    # print remaining 'time' for each virus
                     if processedContigs == totalContigs // 4:
                         print(
                             f"25% of the contigs have been processed in {round(time.time() - vStart,3)} seconds, from the start."
@@ -136,13 +137,10 @@ class SearchForViruses:
                         virusContigObj[virusName] = [result]
                     else:
                         virusContigObj[virusName].append(result)
-            vStop = time.time()
-            print(f"\tVirus {virusData['name']} completed in {vStop-vStart}")
             coverage = self.calculateCoverage(alignments, len(virusSequence))
             virusContigObj[virusData["name"]].append({"coverage": coverage})
             print(f"\tVirus coverage: {coverage}")
 
-        # print(virusContigObj)
         virusContigObjFile = os.path.join(self.outputDataDir, "VirusContigObject.json")
         with open(virusContigObjFile, "w") as file:
             json.dump(virusContigObj, file)

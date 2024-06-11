@@ -22,7 +22,7 @@ class TestQualityControl(unittest.TestCase):
         returnedChar = qc.asciiToPhred("A")
         self.assertEqual(returnedChar, 32)
 
-        biosampleDf, minSeqLength, qcReport = qc.qualityControl()
+        biosampleDf, minSeqLength, qcReport, qcMetaData = qc.qualityControl()
 
         # Assert the output data
         self.assertIsInstance(biosampleDf, pd.DataFrame)

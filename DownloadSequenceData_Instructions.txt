@@ -8,7 +8,7 @@ Download Biosamples:
     - https://www.ncbi.nlm.nih.gov/sra/SRX20364643[accn]
 - SRR24581281: biofilm
     - https://www.ncbi.nlm.nih.gov/sra/SRX20364649
-(Info): The bioproject can be found at 
+(Info): The bioproject can be found at https://www.ncbi.nlm.nih.gov/bioproject/942590
 
 Download Viral Data:
 1. Download 2000 random viruses from: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide
@@ -16,7 +16,6 @@ Download Viral Data:
     - Columns selected were: Accession number, Organism Name
     b. Download the Nucleocytoviricota refseq genomes from: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Genome&VirusLineage_ss=Nucleocytoviricota,%20taxid:2732007
         - These are the viruses that were found in the red snow alge from: https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-024-01796-y
-
 
 Download NCLDV Marker Genes:
 1. Locate the marker genes @:
@@ -28,8 +27,8 @@ Download NCLDV Marker Genes:
     - VLTF3 (poxvirus late transcription factor VLTF3 like): https://www.genome.jp/entry/vg:26049060
     - A32 (packaging ATPase): https://www.ncbi.nlm.nih.gov/gene/11464360
     - D5 (D5-like helicase-primase): https://www.ncbi.nlm.nih.gov/gene/54974987
-2. Download NCBI sequences
-3. Copy and paste KEGG sequences into separate files in src/data/virus_data with the corresponding names:
+2. Download NCBI sequences @: https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide
+3. Copy and paste the 8 NCLDV marker gene KEGG sequences into separate files in src/data/virus_data with the corresponding names:
     - RNAplGeneFile = "kegg_RNApl.fasta"
     - RNApsGeneFile = "kegg_RNAps.fasta"
     - mRNAcGeneFile = "kegg_mRNAc.fasta"

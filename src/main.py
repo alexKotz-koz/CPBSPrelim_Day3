@@ -19,6 +19,7 @@ from components.readsToKmers import ReadsToKmers
 from components.deBruijnGraph import DeBruijnGraph
 from components.createContigs import CreateContigs
 
+# Uncomment these lines to test the implementation of the smith-waterman algorithms and adjust the class instance initalization on line 183
 # from components.searchForViruses_SW import SearchForViruses
 # from components.searchForViruses_SW_PP import SearchForViruses
 from components.searchForViruses import SearchString
@@ -33,8 +34,8 @@ log_file = os.path.join(logDir, "app.log")
 
 handler = RotatingFileHandler(
     log_file,
-    maxBytes=1024 * 1024,  # 1MB
-    backupCount=5,  # Keep 5 backup logs
+    maxBytes=1024 * 1024,
+    backupCount=5,
 )
 
 formatter = logging.Formatter("%(message)s")
@@ -50,6 +51,7 @@ def main():
     scriptDir = os.path.dirname(__file__)
     dataDir = "data"
     dataDir = os.path.join(scriptDir, "data")
+
     # arg setup and management
     parser = argparse.ArgumentParser(
         description="Metagenomic-based virome characterizer"
@@ -85,7 +87,7 @@ def main():
     RNRSFIIGeneFile = "kegg_RNRSFII.fasta"
     VLTF3GeneFile = "kegg_VLTF3.fasta"
 
-    # list of file locations, can be modified by adjusting
+    # list of file locations, can be modified by adjusting line 117
     NCLDVFileLocation = [os.path.join(virusDataDir, NCLDVFile)]
     ncbi4VirusesFileLocation = [os.path.join(virusDataDir, ncbi4VirusesFile)]
     NCLDVGeneFileLocations = [
@@ -112,7 +114,7 @@ def main():
     if "synthetic" in biosampleFile:
         virusDataFileLocations = syntheticVirusFileLocation
     else:
-        virusDataFileLocations = ncbi4VirusesFileLocation
+        virusDataFileLocations = NCLDVGeneFileLocations
 
     if biosampleFile == "synthetic":
         biosampleFile = "synthetic_biosample.fastq"
@@ -154,7 +156,7 @@ def main():
     logging.info(f"Time Stamp: Reads to Kmers finished in {rtkTotal}")
     print(f"Time Stamp: Reads to Kmers finished in {rtkTotal}")
 
-    # Do not delete
+    # Do not delete - used in search for viruses, added to managing logging with parallel processing
     with open("data/logs/r-kmerPool.json", "w") as file:
         json.dump(kmerPool, file)
 
@@ -176,7 +178,7 @@ def main():
     logging.info(f"Time Stamp: Create Contigs finished in {ccTotal}")
     print(f"Time Stamp: Create Contigs finished in {ccTotal}")
 
-    # Add comments about switch to the SW instances
+    # Modify the class instance call for testing the smith-waterman implementations
     sfvStart = time.time()
     searchForVirusesInstance = SearchString(
         viruses, "data/logs/r-kmerPool.json", contigs, k

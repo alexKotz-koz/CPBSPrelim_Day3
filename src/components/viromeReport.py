@@ -54,10 +54,7 @@ class ViromeReport:
             y="Abundance",
             data=df,
         )
-
-        # Rotate x-axis labels and set their font size
         plt.xticks(rotation=45, fontsize="x-small")
-
         plt.title(f"Virus Abundance in {self.biosampleFile}")
         figFile = os.path.join(self.reportDir, "VirusAbundance.png")
         plt.savefig(figFile, bbox_inches="tight")

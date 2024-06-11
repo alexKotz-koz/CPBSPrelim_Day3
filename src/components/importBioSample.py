@@ -7,7 +7,10 @@ class ImportBioSample:
         self.biosampleFile = biosampleFile
         self.biosample = {}
 
+    # Input: biosample file
+    # Output: biosample in dictionary
     def importBioSample(self):
+        # file path management
         scriptDir = os.path.dirname(os.path.dirname(__file__))
         dataDir = "data"
         dataDir = os.path.join(scriptDir, "data")
@@ -18,6 +21,7 @@ class ImportBioSample:
         biosampleFile = self.biosampleFile
         biosampleDataDir = ""
 
+        # check for different metagenomic sample file paths
         if "biofilm" in biosampleFile:
             biosampleDataDir = os.path.join(biosample_dataDir, "biofilm")
         elif "cryoconite" in biosampleFile:
@@ -32,6 +36,7 @@ class ImportBioSample:
         else:
             biosampleFileLocation = os.path.join(biosampleDataDir, biosampleFile)
 
+        # write sample dict to file
         with open(biosampleFileLocation, "r") as biosampleFile:
             while True:
                 idline = biosampleFile.readline().split(" ")

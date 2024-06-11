@@ -8,6 +8,7 @@ from test_import_biosample import TestImportBioSample
 from test_import_virus import TestImportVirus
 
 
+# runs all tests
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestImportBioSample))
@@ -16,7 +17,7 @@ def suite():
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestReadsToKmers))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDeBruijnGraph))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestCreateContigs))
-    # suite.addTest(unittest.makeSuite(TestSearchString))
+    suite.addTest(unittest.makeSuite(TestSearchString))
 
     return suite
 

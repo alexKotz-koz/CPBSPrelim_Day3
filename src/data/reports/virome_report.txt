@@ -1,0 +1,24 @@
+Virome Report:
+
+Biosample Information:
+	Number of Reads in Original Biosample File: 4
+	Number of Reads in Biosample after Quality Control: 4
+
+	Average Read Length after Quality Control: 9.5 bp
+	Minimum Read Length after Quality Control: 7 bp
+	Maximum Read Length after Quality Control: 13 bp
+
+Shannon Diversity Index for synthetic_biosample.fastq community: 0.216
+
+Virus Abundance in synthetic_biosample.fastq:
+{
+    "DEF virus": {
+        "abundance": 75.0
+    },
+    "GHI virus": {
+        "abundance": 100.0
+    },
+    "ABC virus": {
+        "abundance": 100.0
+    }
+}

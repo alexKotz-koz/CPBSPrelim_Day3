@@ -27,6 +27,8 @@ class SearchString:
         self.k = k
         self.maxHammingDistance = 2
 
+    # Input: virus sequence
+    # Output: virus kmer pool
     def virusToKmers(self, sequence):
         kmerPool = {}
         for index in range(len(sequence) - self.k + 1):
@@ -37,11 +39,13 @@ class SearchString:
                 kmerPool[kmer].append(index)
         return kmerPool
 
+    # Input: virus kmerpool
     def kmerPoolsToFile(self, virusKmerPool):
-
         with open("data/logs/v-kmerPool.json", "w") as file:
             json.dump(virusKmerPool, file)
 
+    # Input: virus k-mer and contig k-mer
+    # Output: hamming distance between the two k-mers
     def hammingDistance(self, virus, contig):
         distance = 0
         for index in range(len(virus)):
@@ -49,6 +53,8 @@ class SearchString:
                 distance += 1
         return distance
 
+    # Input: virus k-mer pool and virus object
+    # Output: Contigs info object contain information about each contig k-mer that aligned (or didn't align) with each virus
     def createContigsInfo(self, virus, virusKmerPool):
         contigsInfo = []
         for id, contig in enumerate(self.contigs):
@@ -84,6 +90,8 @@ class SearchString:
             contigsInfo.append(contigInfo)
         return contigsInfo
 
+    # Input: virus and contig objects
+    # Output: information about the contigs that aligned (or didn't align) with each virus
     def searchString(self):
         logging.info("Search For Viruses:\n")
         virusesInBiosample = []

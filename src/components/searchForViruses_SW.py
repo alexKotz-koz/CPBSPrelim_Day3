@@ -16,70 +16,54 @@ class SearchForViruses:
         self.outputDataDir = "./data/output_data"
 
     def smith_waterman(
-        self, contig, virus, match_score=3, mismatch_score=-1, gap_penalty=-2
+        self, contig, virus, matchScore=3, mismatchScore=-1, gapPenalty=-2
     ):
-        """
-        Perform Smith-Waterman alignment on two sequences.
-
-        Args:
-        - contig (str): First sequence to align.
-        - virus (str): Second sequence to align.
-        - match_score (int): Score for a match.
-        - mismatch_score (int): Score for a mismatch.
-        - gap_penalty (int): Penalty for opening a gap.
-
-        Returns:
-        - alignment_score (int): Score of the best alignment.
-        - aligned_contig (str): First sequence with gaps for alignment.
-        - aligned_virus (str): Second sequence with gaps for alignment.
-        """
-        # Initialize scoring matrix
+        # initialize scoring matrix
         rows = len(contig) + 1
         cols = len(virus) + 1
-        score_matrix = np.zeros((rows, cols), dtype=int)
+        scoreMatrix = np.zeros((rows, cols), dtype=int)
 
-        # Initialize traceback matrix
-        traceback_matrix = np.zeros((rows, cols), dtype=int)
+        # initialize traceback matrix
+        tracebackMatrix = np.zeros((rows, cols), dtype=int)
 
-        # Fill in scoring and traceback matrices
+        # fill in scoring and traceback matrices
         for i in range(1, rows):
             for j in range(1, cols):
-                match = score_matrix[i - 1][j - 1] + (
-                    match_score if contig[i - 1] == virus[j - 1] else mismatch_score
+                match = scoreMatrix[i - 1][j - 1] + (
+                    matchScore if contig[i - 1] == virus[j - 1] else mismatchScore
                 )
-                delete = score_matrix[i - 1][j] + gap_penalty
-                insert = score_matrix[i][j - 1] + gap_penalty
-                score_matrix[i][j] = max(match, delete, insert, 0)
-                traceback_matrix[i][j] = np.argmax([0, match, delete, insert])
+                delete = scoreMatrix[i - 1][j] + gapPenalty
+                insert = scoreMatrix[i][j - 1] + gapPenalty
+                scoreMatrix[i][j] = max(match, delete, insert, 0)
+                tracebackMatrix[i][j] = np.argmax([0, match, delete, insert])
 
-        # Find the maximum score in the matrix
-        max_score = np.max(score_matrix)
+        # find the maximum score in the matrix
+        maxScore = np.max(scoreMatrix)
 
-        # Find the index of the maximum score
-        max_index = np.unravel_index(np.argmax(score_matrix), score_matrix.shape)
+        # find the index of the maximum score
+        maxIndex = np.unravel_index(np.argmax(scoreMatrix), scoreMatrix.shape)
 
-        # Traceback to reconstruct the aligned sequences
-        aligned_contig = ""
-        aligned_virus = ""
-        i, j = max_index
+        # traceback to reconstruct the aligned sequences
+        alignedContig = ""
+        alignedVirus = ""
+        i, j = maxIndex
         startPosition = j
-        while i > 0 and j > 0 and score_matrix[i][j] != 0:
-            if traceback_matrix[i][j] == 1:
-                aligned_contig = contig[i - 1] + aligned_contig
-                aligned_virus = virus[j - 1] + aligned_virus
+        while i > 0 and j > 0 and scoreMatrix[i][j] != 0:
+            if tracebackMatrix[i][j] == 1:
+                alignedContig = contig[i - 1] + alignedContig
+                alignedVirus = virus[j - 1] + alignedVirus
                 i -= 1
                 j -= 1
-            elif traceback_matrix[i][j] == 2:
-                aligned_contig = contig[i - 1] + aligned_contig
-                aligned_virus = "-" + aligned_virus
+            elif tracebackMatrix[i][j] == 2:
+                alignedContig = contig[i - 1] + alignedContig
+                alignedVirus = "-" + alignedVirus
                 i -= 1
             else:
-                aligned_contig = "-" + aligned_contig
-                aligned_virus = virus[j - 1] + aligned_virus
+                alignedContig = "-" + alignedContig
+                alignedVirus = virus[j - 1] + alignedVirus
                 j -= 1
         endPosition = j
-        print(f"Done: {max_score}")
-        return max_score, aligned_contig, aligned_virus, startPosition, endPosition
+        return maxScore, alignedContig, alignedVirus, startPosition, endPosition
 
     def calculateCoverage(self, alignments, virusLength):
         coverageArray = np.zeros(virusLength, dtype=bool)
@@ -133,10 +117,6 @@ class SearchForViruses:
                         }
                     )
 
-                print(
-                    f"Contig {index}/{len(self.contigs)} on virus {vIndex}/{len(self.viruses)}"
-                )
-                print(f"Virus length: {len(virus)}\n")
             vStop = time.time()
             logging.info(f"\tVirus {virusData['name']} completed in {vStop-vStart}")
             coverage = self.calculateCoverage(alignments, len(virusSequence))
