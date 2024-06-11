@@ -23,7 +23,7 @@ class ImportBioSample:
         elif "cryoconite" in biosampleFile:
             biosampleDataDir = os.path.join(biosample_dataDir, "cryoconite")
         elif "synthetic" in biosampleFile:
-            biosampleDataDir = os.path.join(biosample_dataDir, "synthetic_data")
+            biosampleDataDir = os.path.join(dataDir, "synthetic_data")
         elif "test" in biosampleFile:
             biosampleDataDir = ""
 

@@ -105,7 +105,9 @@ def main():
         os.path.join(virusDataDir, virusFile4),
         os.path.join(virusDataDir, NCLDVFile),
     ]
-    syntheticVirusFileLocation = [os.path.join(virusDataDir, "synthetic_virus.fasta")]
+    syntheticVirusFileLocation = [
+        os.path.join(os.path.join(dataDir, "synthetic_data"), "synthetic_virus.fasta")
+    ]
 
     if "synthetic" in biosampleFile:
         virusDataFileLocations = syntheticVirusFileLocation
