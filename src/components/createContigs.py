@@ -15,6 +15,8 @@ class CreateContigs:
         dataDir = os.path.join(scriptDir, "data")
         self.logsDataDir = os.path.join(dataDir, "logs")
         self.outputDataDir = os.path.join(dataDir, "output_data")
+        os.makedirs(self.logsDataDir, exist_ok=True)
+        os.makedirs(self.outputDataDir, exist_ok=True)
 
     # Input: edge list from readsToKmers
     # Output: a list of all start nodes (nodes that only have outgoing edges)
