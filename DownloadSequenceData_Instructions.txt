@@ -20,14 +20,14 @@ Download Viral Data:
 
 Download NCLDV Marker Genes:
 1. Locate the marker genes @:
-    - PolB: https://www.genome.jp/entry/elp:P12B_c0053
-    - mRNAc: https://www.genome.jp/entry/hsa:8732
-    - RNApl: https://www.genome.jp/entry/cqu:CpipJ_CPIJ018338
-    - RNAps: https://www.genome.jp/entry/sbia:133503957
-    - RNR/SFII: https://www.genome.jp/entry/aor:AO090005000418
-    - VLTF3: https://www.genome.jp/entry/vg:26049060
-    - A32: https://www.ncbi.nlm.nih.gov/gene/11464360
-    - D5: https://www.ncbi.nlm.nih.gov/gene/54974987
+    - PolB (DNA polymerase elongation subunit family B): https://www.genome.jp/entry/elp:P12B_c0053
+    - mRNAc (mRNA-capping enzyme): https://www.genome.jp/entry/hsa:8732
+    - RNApl (RNA polymerase large subunit): https://www.genome.jp/entry/cqu:CpipJ_CPIJ018338
+    - RNAps (RNA polymerase small subunit): https://www.genome.jp/entry/sbia:133503957
+    - RNR/SFII (DNA or RNA helicases of superfamily II): https://www.genome.jp/entry/aor:AO090005000418
+    - VLTF3 (poxvirus late transcription factor VLTF3 like): https://www.genome.jp/entry/vg:26049060
+    - A32 (packaging ATPase): https://www.ncbi.nlm.nih.gov/gene/11464360
+    - D5 (D5-like helicase-primase): https://www.ncbi.nlm.nih.gov/gene/54974987
 2. Download NCBI sequences
 3. Copy and paste KEGG sequences into separate files in src/data/virus_data with the corresponding names:
     - RNAplGeneFile = "kegg_RNApl.fasta"
