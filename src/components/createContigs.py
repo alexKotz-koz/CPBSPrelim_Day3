@@ -157,10 +157,11 @@ class CreateContigs:
         try:
             avgLen = sum(len(contig) for contig in contigs) / len(contigs)
             logging.info(f"\tAverage contig length: {avgLen}")
+            logging.info(f"\tMinimum contig length: {len(min(contigs, key=len))}")
+            logging.info(f"\tMaximum contig length: {len(max(contigs, key=len))}")
+            logging.info(f"\tTotal number of contigs: {[len(contigs)]}")
         except ZeroDivisionError:
             print("Length of contigs is 0, cannot calculate avg length of contig")
-        logging.info(f"\tTotal number of contigs: {[len(contigs)]}")
+            print(f"len contigs: {len(contigs)}. startnodes: {startNodes}")
 
-        logging.info(f"\tMinimum contig length: {len(min(contigs, key=len))}")
-        logging.info(f"\tMaximum contig length: {len(max(contigs, key=len))}")
         return contigs

@@ -74,6 +74,7 @@ def main():
     virusFile2 = "sequences_20240607_570283.fasta"
     virusFile3 = "sequences_20240607_9774926.fasta"
     virusFile4 = "sequences_20240607_5959983.fasta"
+    ncbi4VirusesFile = "ncbi_random_4_viruses.fasta"
     NCLDVFile = "sequences_ Nucleocytoviricota.fasta"
     PolBGeneFile = "kegg_polB.fasta"
     A32GeneFile = "ncbi_A32.fna"
@@ -86,6 +87,7 @@ def main():
 
     # list of file locations, can be modified by adjusting
     NCLDVFileLocation = [os.path.join(virusDataDir, NCLDVFile)]
+    ncbi4VirusesFileLocation = [os.path.join(virusDataDir, ncbi4VirusesFile)]
     NCLDVGeneFileLocations = [
         os.path.join(virusDataDir, PolBGeneFile),
         os.path.join(virusDataDir, A32GeneFile),
@@ -108,8 +110,10 @@ def main():
     if "synthetic" in biosampleFile:
         virusDataFileLocations = syntheticVirusFileLocation
     else:
-        virusDataFileLocations = NCLDVGeneFileLocations
+        virusDataFileLocations = ncbi4VirusesFileLocation
 
+    if biosampleFile == "synthetic":
+        biosampleFile = "synthetic_biosample.fastq"
     bioStart = time.time()
     importBioSampleInstance = ImportBioSample(biosampleFile=biosampleFile)
     biosample = importBioSampleInstance.importBioSample()
@@ -147,6 +151,10 @@ def main():
     componentRunTimes["readsToKmers"] = rtkTotal
     logging.info(f"Time Stamp: Reads to Kmers finished in {rtkTotal}")
     print(f"Time Stamp: Reads to Kmers finished in {rtkTotal}")
+
+    # Do not delete
+    with open("data/logs/r-kmerPool.json", "w") as file:
+        json.dump(kmerPool, file)
 
     dbgStart = time.time()
     debruijnGraphInstance = DeBruijnGraph(kmerPool=kmerPool, k=k)

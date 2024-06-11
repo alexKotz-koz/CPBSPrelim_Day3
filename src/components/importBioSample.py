@@ -8,20 +8,22 @@ class ImportBioSample:
         self.biosample = {}
 
     def importBioSample(self):
-        dataDir = "./data/biosample_data"
-        os.makedirs(dataDir, exist_ok=True)
+        scriptDir = os.path.dirname(os.path.dirname(__file__))
+        dataDir = "data"
+        dataDir = os.path.join(scriptDir, "data")
+        self.logsDataDir = os.path.join(dataDir, "logs")
+        self.outputDataDir = os.path.join(dataDir, "output_data")
+        biosample_dataDir = os.path.join(dataDir, "biosample_data")
         biosample = self.biosample
         biosampleFile = self.biosampleFile
         biosampleDataDir = ""
 
         if "biofilm" in biosampleFile:
-            biosampleDataDir = os.path.join(dataDir, "biofilm")
+            biosampleDataDir = os.path.join(biosample_dataDir, "biofilm")
         elif "cryoconite" in biosampleFile:
-            biosampleDataDir = os.path.join(dataDir, "cryoconite")
-        elif "bat" in biosampleFile:
-            biosampleDataDir = os.path.join(dataDir, "bat")
+            biosampleDataDir = os.path.join(biosample_dataDir, "cryoconite")
         elif "synthetic" in biosampleFile:
-            biosampleDataDir = dataDir
+            biosampleDataDir = biosample_dataDir
         elif "test" in biosampleFile:
             biosampleDataDir = ""
 

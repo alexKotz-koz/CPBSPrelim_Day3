@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import json
 import math
 
@@ -32,6 +33,8 @@ class ViromeReport:
         # Shannon index diversity formula: https://www.statology.org/shannon-diversity-index/
         pITimeslnPis = []
         for index, virus in virusAbundance.items():
+            if virus["abundance"] == 0:
+                continue
             pI = virus["abundance"] / 100
             lnPi = math.log(pI)
             pITimeslnPi = pI * lnPi
@@ -42,18 +45,22 @@ class ViromeReport:
     def generateReport(self):
         reportFile = "virome_report.txt"
 
-        # virus abundance
         virusAbundance = self.virusAbundance()
         df = pd.DataFrame(virusAbundance).T.reset_index()
         df.columns = ["Virus", "Abundance"]
+
         sns.barplot(
             x="Virus",
             y="Abundance",
             data=df,
         )
+
+        # Rotate x-axis labels and set their font size
+        plt.xticks(rotation=45, fontsize="x-small")
+
         plt.title(f"Virus Abundance in {self.biosampleFile}")
         figFile = os.path.join(self.reportDir, "VirusAbundance.png")
-        plt.savefig(figFile)
+        plt.savefig(figFile, bbox_inches="tight")
 
         # shannon diversity index
         shannonIndex = self.shannonDiversity(virusAbundance)

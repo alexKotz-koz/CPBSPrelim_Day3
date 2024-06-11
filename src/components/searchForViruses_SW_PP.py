@@ -21,55 +21,52 @@ class SearchForViruses:
         # Initialize scoring matrix
         rows = len(contig) + 1
         cols = len(virus) + 1
-        score_matrix = np.zeros((rows, cols), dtype=int)
+        scoreMatrix = np.zeros((rows, cols), dtype=int)
 
         # Initialize traceback matrix
-        traceback_matrix = np.zeros((rows, cols), dtype=int)
+        traceBackMatrix = np.zeros((rows, cols), dtype=int)
 
         # Starting from the second row and second column,
         for i in range(1, rows):
             for j in range(1, cols):
-                match = score_matrix[i - 1][j - 1] + (
+                match = scoreMatrix[i - 1][j - 1] + (
                     match_score if contig[i - 1] == virus[j - 1] else mismatch_score
                 )
-                delete = score_matrix[i - 1][j] + gap_penalty
-                insert = score_matrix[i][j - 1] + gap_penalty
-                score_matrix[i][j] = max(match, delete, insert, 0)
-                traceback_matrix[i][j] = np.argmax([0, match, delete, insert])
+                delete = scoreMatrix[i - 1][j] + gap_penalty
+                insert = scoreMatrix[i][j - 1] + gap_penalty
+                scoreMatrix[i][j] = max(match, delete, insert, 0)
+                traceBackMatrix[i][j] = np.argmax([0, match, delete, insert])
 
         # Find the maximum score in the matrix
-        max_score = np.max(score_matrix)
+        maxScore = np.max(scoreMatrix)
 
         # Find the index of the maximum score
-        max_index = np.unravel_index(np.argmax(score_matrix), score_matrix.shape)
+        maxIndex = np.unravel_index(np.argmax(scoreMatrix), scoreMatrix.shape)
 
         # Traceback to reconstruct the aligned sequences
-        aligned_contig = ""
-        aligned_virus = ""
-        i, j = max_index
+        alignedContig = ""
+        alignedVirus = ""
+        i, j = maxIndex
         startPosition = j
-        while i > 0 and j > 0 and score_matrix[i][j] != 0:
-            if traceback_matrix[i][j] == 1:
-                aligned_contig = contig[i - 1] + aligned_contig
-                aligned_virus = virus[j - 1] + aligned_virus
+        while i > 0 and j > 0 and scoreMatrix[i][j] != 0:
+            if traceBackMatrix[i][j] == 1:
+                alignedContig = contig[i - 1] + alignedContig
+                alignedVirus = virus[j - 1] + alignedVirus
                 i -= 1
                 j -= 1
-            elif traceback_matrix[i][j] == 2:
-                aligned_contig = contig[i - 1] + aligned_contig
-                aligned_virus = "-" + aligned_virus
+            elif traceBackMatrix[i][j] == 2:
+                alignedContig = contig[i - 1] + alignedContig
+                alignedVirus = "-" + alignedVirus
                 i -= 1
             else:
-                aligned_contig = "-" + aligned_contig
-                aligned_virus = virus[j - 1] + aligned_virus
+                alignedContig = "-" + alignedContig
+                alignedVirus = virus[j - 1] + alignedVirus
                 j -= 1
         endPosition = j
-        # print(f"Done: {max_score}")
-        return max_score, aligned_contig, aligned_virus, startPosition, endPosition
+        # print(f"Done: {maxScore}")
+        return maxScore, alignedContig, alignedVirus, startPosition, endPosition
 
     def calculateCoverage(self, alignments, virusLength):
-        """
-        If a position in the virus sequence is covered by an alignment, the corresponding position in the array is set to True. The coverage is then calculated as the sum of the True values in the array (i.e., the number of positions covered by alignments) divided by the length of the virus sequence, multiplied by 100 to get a percentage.
-        """
         coverageArray = np.zeros(virusLength, dtype=bool)
         for alignment in alignments:
             start = alignment["startPosition"]

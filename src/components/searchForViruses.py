@@ -1,7 +1,6 @@
 import json
 import os
 import logging
-from multiprocessing import Pool
 import time
 
 logDir = "data/logs"
